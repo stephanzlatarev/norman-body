@@ -1,0 +1,22 @@
+A={"owner": 1, "kind": {"damage": 10, "range": 1}}
+B={"owner": 2, "kind": {"damage": 10, "range": 1}}
+     
+   B 
+     
+    #
+A  ##
+--- Verify that an attack command is issued
+A-B
+     
+   B 
+     
+ A  #
+   ##
+--- Verify that the attack command is not repeated
+     
+   B 
+  A  
+    #
+   ##
+---
+===

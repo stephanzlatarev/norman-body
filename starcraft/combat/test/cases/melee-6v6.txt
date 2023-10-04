@@ -1,0 +1,30 @@
+A={"owner": 1, "kind": {"damage": 10, "range": 1}}
+B={"owner": 1, "kind": {"damage": 10, "range": 1}}
+C={"owner": 1, "kind": {"damage": 10, "range": 1}}
+D={"owner": 1, "kind": {"damage": 10, "range": 1}}
+E={"owner": 1, "kind": {"damage": 10, "range": 1}}
+F={"owner": 1, "kind": {"damage": 10, "range": 1}}
+U={"owner": 2, "kind": {"damage": 10, "range": 1}}
+V={"owner": 2, "kind": {"damage": 10, "range": 1}}
+W={"owner": 2, "kind": {"damage": 10, "range": 1}}
+X={"owner": 2, "kind": {"damage": 10, "range": 1}}
+Y={"owner": 2, "kind": {"damage": 10, "range": 1}}
+Z={"owner": 2, "kind": {"damage": 10, "range": 1}}
+       
+ U V W 
+  X Y  
+   Z   
+       
+   A   
+  B C  
+ D E F 
+       
+--- Three groups of two warriors should attack the most vulnerable enemies at the edges
+A-Z
+B-Z
+C-U
+D-U
+E-W
+F-W
+---
+===

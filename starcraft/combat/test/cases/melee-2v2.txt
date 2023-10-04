@@ -1,0 +1,19 @@
+A={"owner": 1, "kind": {"damage": 10, "range": 1}}
+B={"owner": 1, "kind": {"damage": 10, "range": 1}}
+C={"owner": 2, "kind": {"damage": 10, "range": 1}}
+D={"owner": 2, "kind": {"damage": 10, "range": 1}}
+     
+ C D 
+     
+ A B 
+     
+--- Both warriors should attack one enemy
+A-C
+B-C
+     
+ C D 
+ AB  
+     
+     
+---
+===

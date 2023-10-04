@@ -1,0 +1,16 @@
+A={"owner": 1, "kind": {"damage": 10, "range": 1}}
+B={"owner": 1, "kind": {"damage": 10, "range": 1}}
+X={"owner": 2, "kind": {"damage": 10, "range": 1}}
+A X B
+--- Verify that all warriors get commands
+A-X
+B-X
+ AXB 
+--- go on
+Y={"owner": 2, "kind": {"damage": 10, "range": 1}}
+Y A  
+--- Verify that dead warriors do not get commands
+A-Y
+YA   
+---
+===
