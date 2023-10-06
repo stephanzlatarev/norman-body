@@ -20,6 +20,9 @@ export default function(units) {
   enemies.sort((a, b) => (a.combat.strength - b.combat.strength));
 
   for (const target of enemies) {
+    assessDistance(warriors, target);
+    warriors.sort((a, b) => (a.combat.distance - b.combat.distance));
+
     const attackers = warriors.slice(0, 2);
     engagements.push(new Fight(target, attackers));
 
@@ -45,6 +48,12 @@ function assessStrength(enemies, warriors) {
     for (const warrior of warriors) {
       enemy.combat.strength += distance(enemy, warrior) / 3;
     }
+  }
+}
+
+function assessDistance(warriors, enemy) {
+  for (const warrior of warriors) {
+    warrior.combat.distance = distance(enemy, warrior);
   }
 }
 

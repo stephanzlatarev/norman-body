@@ -11,6 +11,7 @@ describe("Combat", function() {
       let commands = [];
 
       for (const step of testcase.steps) {
+        commands.sort(compareByAlphabetOrder);
         for (let i = 0; i < step.commands.length; i++) {
           assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]));
         }
@@ -42,4 +43,15 @@ function map(units, commands) {
   }
 
   return map;
+}
+
+function compareByAlphabetOrder(a, b) {
+  const as = a.unitTags[0];
+  const bs = b.unitTags[0];
+
+  if (as !== bs) return as.localeCompare(bs);
+
+  if (a.targetUnitTag && b.targetUnitTag) return a.targetUnitTag.localeCompare(b.targetUnitTag);
+
+  return 0;
 }
