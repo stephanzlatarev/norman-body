@@ -22,7 +22,6 @@ function sync(unit) {
   if (unit.combat) {
     // Update combat properties
     unit.combat.health = unit.health + unit.shield;
-    unit.combat.order = null;
   } else {
     // Initialize combat properties
     unit.combat = {
@@ -33,7 +32,6 @@ function sync(unit) {
 
       // Changing properties
       health: unit.health + unit.shield,
-      order: null,
     };
   }
 }

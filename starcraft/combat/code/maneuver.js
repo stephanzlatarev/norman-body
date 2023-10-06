@@ -17,12 +17,14 @@ function createAttackCommand(commands, warrior, enemy) {
   if ((warrior.order.abilityId !== 3674) || (warrior.order.targetUnitTag !== enemy.tag)) {
     commands.push({ unitTags: [warrior.tag], abilityId: 3674, targetUnitTag: enemy.tag, queueCommand: false });
   }
-  warrior.gotOrders = true;
 }
 
 function createMoveCommand(commands, warrior, pos) {
-  if ((warrior.order.abilityId !== 16) || (warrior.order.targetWorldSpacePos.x !== pos.x) || (warrior.order.targetWorldSpacePos.y !== pos.y)) {
+  if ((warrior.order.abilityId !== 16) || !isSamePosition(warrior.order.targetWorldSpacePos, pos)) {
     commands.push({ unitTags: [warrior.tag], abilityId: 16, targetWorldSpacePos: pos, queueCommand: false });
   }
-  warrior.gotOrders = true;
+}
+
+function isSamePosition(a, b) {
+  return ((a.x >= b.x - 0.1) && (a.x <= b.x + 0.1) && (a.y >= b.y - 0.1) && (a.y <= b.y + 0.1));
 }
