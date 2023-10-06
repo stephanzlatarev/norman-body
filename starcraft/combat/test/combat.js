@@ -8,16 +8,18 @@ describe("Combat", function() {
 
     it(testcase.title, function() {
       const combat = new Combat();
-      let commands = [];
 
       for (const step of testcase.steps) {
-        commands.sort(compareByAlphabetOrder);
-        for (let i = 0; i < step.commands.length; i++) {
-          assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]));
-        }
-        assert.equal(commands.length, step.commands.length, "Wrong number of commands are issued" + (step.comment ? " at step: " + step.comment : ""));
+        const commands = combat.run(map(step.units));
 
-        commands = combat.run(map(step.units, commands));
+        commands.sort(compareByAlphabetOrder);
+        step.commands.sort(compareByAlphabetOrder);
+
+        for (let i = 0; i < step.commands.length; i++) {
+          assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]), (step.comment ? step.comment : "Wrong command"));
+        }
+
+        assert.equal(commands.length, step.commands.length, (step.comment ? step.comment : "Wrong number of commands"));
       }
     });
 
@@ -25,21 +27,11 @@ describe("Combat", function() {
 
 });
 
-function map(units, commands) {
+function map(units) {
   const map = new Map();
 
-  for (const tag in units) {
-    const unit = units[tag];
-
-    unit.order = { abilityId: 0 };
-
-    for (const command of commands) {
-      if (command.unitTags.length && (command.unitTags[0] === tag)) {
-        unit.order = command;
-      }
-    }
-
-    map.set(tag, unit);
+  for (const unit of units) {
+    map.set(unit.tag, unit);
   }
 
   return map;

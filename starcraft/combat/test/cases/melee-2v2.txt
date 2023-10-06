@@ -1,19 +1,8 @@
-A={"owner": 1, "kind": {"damage": 10, "range": 1}}
-B={"owner": 1, "kind": {"damage": 10, "range": 1}}
-C={"owner": 2, "kind": {"damage": 10, "range": 1}}
-D={"owner": 2, "kind": {"damage": 10, "range": 1}}
-     
- C D 
-     
- A B 
-     
---- Both warriors should attack one enemy
-A-C
-B-C
-     
- C D 
- AB  
-     
-     
----
-===
+
+# Both warriors should attack one enemy
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"B", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"X", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"Y", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 3 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+{"unitTags": ["B"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}

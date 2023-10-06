@@ -1,16 +1,12 @@
-A={"owner": 1, "kind": {"damage": 10, "range": 1}}
-B={"owner": 1, "kind": {"damage": 10, "range": 1}}
-X={"owner": 2, "kind": {"damage": 10, "range": 1}}
-A X B
---- Verify that all warriors get commands
-A-X
-B-X
- AXB 
---- go on
-Y={"owner": 2, "kind": {"damage": 10, "range": 1}}
-Y A  
---- Verify that dead warriors do not get commands
-A-Y
-YA   
----
-===
+
+# All warriors should get commands
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"B", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 2, "y": 2 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"X", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 3 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+{"unitTags": ["B"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+
+# Dead warriors should not get commands
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"Y", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 3 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}

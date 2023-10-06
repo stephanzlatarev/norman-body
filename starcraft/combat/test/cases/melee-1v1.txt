@@ -1,22 +1,14 @@
-A={"owner": 1, "kind": {"damage": 10, "range": 1}}
-B={"owner": 2, "kind": {"damage": 10, "range": 1}}
-     
-   B 
-     
-    #
-A  ##
---- Verify that an attack command is issued
-A-B
-     
-   B 
-     
- A  #
-   ##
---- Verify that the attack command is not repeated
-     
-   B 
-  A  
-    #
-   ##
----
-===
+
+# Warrior should attack enemy unit
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"X", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 5, "y": 5 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+
+# Attack command should not be repeated
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 2, "y": 2 }, "order": { "abilityId": 3674, "targetUnitTag": "X" }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"X", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 5, "y": 5 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+
+# Warrior should attack new enemy unit
+{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 2, "y": 2 }, "order": { "abilityId": 3674, "targetUnitTag": "X" }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"Y", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}
