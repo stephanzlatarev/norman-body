@@ -1,4 +1,6 @@
 
+const STEP_DIAGONAL = Math.sqrt(2);
+
 // TODO: Consider the radius of warrior and units when finding path. The warrior is not able to move between units that are close together.
 // TODO: Consider the weapon range of warrior when calculating the steps to reach an enemy.
 export default class Path {
@@ -37,10 +39,16 @@ export default class Path {
       }
     }
 
-    for (const cell of getAdjacentCellsDiagonal(coordinates)) {
-      if (this.grid[cell.row] && (this.grid[cell.row][cell.col] < bestSteps)) {
-        bestSteps = this.grid[cell.row][cell.col];
-      }
+// Ignore diagonals because if it crosses a diagonal taken by other units, then this unit may not be able to pass between them
+// TODO: Add test that it doesn't take the diagonal
+//    for (const cell of getAdjacentCellsDiagonal(coordinates)) {
+//      if (this.grid[cell.row] && (this.grid[cell.row][cell.col] < bestSteps)) {
+//        bestSteps = this.grid[cell.row][cell.col];
+//      }
+//    }
+
+    if (bestSteps <= STEP_DIAGONAL) {
+      bestSteps = distance(this.warrior.body, enemy.body);
     }
 
     return bestSteps;
@@ -151,8 +159,6 @@ function getAdjacentCellsStraight(cell, steps) {
   ];
 }
 
-const STEP_DIAGONAL = Math.sqrt(2);
-
 function getAdjacentCellsDiagonal(cell, steps) {
   return [
     { row: cell.row - 1, col: cell.col - 1, steps: steps + STEP_DIAGONAL },
@@ -160,4 +166,8 @@ function getAdjacentCellsDiagonal(cell, steps) {
     { row: cell.row - 1, col: cell.col + 1, steps: steps + STEP_DIAGONAL },
     { row: cell.row + 1, col: cell.col - 1, steps: steps + STEP_DIAGONAL },
   ];
+}
+
+function distance(a, b) {
+  return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) - a.radius - b.radius;
 }

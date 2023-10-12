@@ -14,7 +14,6 @@ export default function(fights) {
 }
 
 function createAttackCommand(commands, warrior, enemy) {
-  console.log(warrior.tag, "attacks", enemy.tag);
   if ((warrior.order.abilityId !== 3674) || (warrior.order.targetUnitTag !== enemy.tag)) {
     commands.push({ unitTags: [warrior.tag], abilityId: 3674, targetUnitTag: enemy.tag, queueCommand: false });
   }
