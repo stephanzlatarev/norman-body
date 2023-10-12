@@ -9,6 +9,12 @@ export default class Path {
     this.warrior = warrior;
   }
 
+  cell(col, row) {
+    if (this.grid[row] && this.grid[row][col]) {
+      return this.grid[row][col];
+    }
+  }
+
   calculate(units) {
     this.boundaries = findBoundaries(this.warrior, units);
 
@@ -29,43 +35,40 @@ export default class Path {
   getStepsToReach(enemy) {
     const col = getCol(this.boundaries, enemy.body);
     const row = getRow(this.boundaries, enemy.body);
+    const target = this.cell(col, row);
+
+    if (!target) return Infinity;
+
     const coordinates = { row: row, col: col };
 
-    let bestSteps = (this.grid[row] && (this.grid[row][col] >= 0)) ? this.grid[row][col] : Infinity;
+    let bestSteps = (target.steps >= 0) ? target.steps : Infinity;
 
-    for (const cell of getAdjacentCellsStraight(coordinates)) {
-      if (this.grid[cell.row] && (this.grid[cell.row][cell.col] < bestSteps)) {
-        bestSteps = this.grid[cell.row][cell.col];
+    for (const c of getAdjacentCellsStraight(coordinates)) {
+      if (this.grid[c.row] && this.grid[c.row][c.col]) {
+        const cell = this.grid[c.row][c.col];
+
+        if ((cell.steps < bestSteps) && isUnitApproachableFromDirection(enemy, target, c)) {
+          bestSteps = cell.steps;
+        }
       }
     }
 
-// Ignore diagonals because if it crosses a diagonal taken by other units, then this unit may not be able to pass between them
-// TODO: Add test that it doesn't take the diagonal
-//    for (const cell of getAdjacentCellsDiagonal(coordinates)) {
-//      if (this.grid[cell.row] && (this.grid[cell.row][cell.col] < bestSteps)) {
-//        bestSteps = this.grid[cell.row][cell.col];
-//      }
-//    }
-
-    if (bestSteps <= STEP_DIAGONAL) {
-      bestSteps = distance(this.warrior.body, enemy.body);
-    }
-
-    return bestSteps;
+    return Math.max(bestSteps, 0);
   }
 
   show(title) {
     if (title) console.log("---", title, "---");
-    for (const row of this.grid) {
+    for (let i = this.grid.length - 1; i >= 0; i--) {
+      const row = this.grid[i];
       const line = [];
 
       for (const cell of row) {
-        if (cell === Infinity) {
+        if (cell.steps === Infinity) {
           line.push("##");
-        } else if (cell >= 10) {
-          line.push(Math.floor(cell));
-        } else if (cell >= 0) {
-          line.push(" " + Math.floor(cell));
+        } else if (cell.steps >= 10) {
+          line.push(Math.floor(cell.steps));
+        } else if (cell.steps >= 0) {
+          line.push(" " + Math.floor(cell.steps));
         } else {
           line.push(" .");
         }
@@ -104,7 +107,7 @@ function createGrid(boundaries) {
     const row = [];
 
     for (let j = 0; j < boundaries.width; j++) {
-      row.push(undefined);
+      row.push({ steps: undefined, units: [] });
     }
 
     grid.push(row);
@@ -122,52 +125,62 @@ function getRow(boundaries, pos) {
 }
 
 function markUnit(grid, boundaries, pos) {
-  grid[getRow(boundaries, pos)][getCol(boundaries, pos)] = Infinity;
+  const cell = grid[getRow(boundaries, pos)][getCol(boundaries, pos)];
+  cell.steps = Infinity;
+  cell.units.push(pos);
 }
 
 function findPath(grid, startRow, startCol) {
-  let cells = [{ row: startRow, col: startCol, steps: 0 }];
+  let coordinates = [{ row: startRow, col: startCol, steps: 0 }];
 
-  grid[startRow][startCol] = undefined;
+  grid[startRow][startCol].steps = undefined;
 
-  while (cells.length) {
+  while (coordinates.length) {
     const next = [];
 
-    for (const cell of cells) {
+    for (const c of coordinates) {
       // Check if cell is outside the grid
-      if ((cell.row < 0) || (cell.row >= grid.length) || (cell.col < 0) || (cell.col >= grid[cell.row].length)) continue;
+      if ((c.row < 0) || (c.row >= grid.length) || (c.col < 0) || (c.col >= grid[c.row].length)) continue;
 
       // Check if cell is already visited
-      if (grid[cell.row][cell.col] >= 0) continue;
+      if (grid[c.row][c.col].steps >= 0) continue;
 
-      grid[cell.row][cell.col] = cell.steps;
-      next.push(...getAdjacentCellsStraight(cell, cell.steps));
-      next.push(...getAdjacentCellsDiagonal(cell, cell.steps));
+      grid[c.row][c.col].steps = c.steps;
+      next.push(...getAdjacentCellsStraight(c));
+      next.push(...getAdjacentCellsDiagonal(c));
     }
 
-    cells = next;
-    cells.sort((a, b) => (a.steps - b.steps));
+    coordinates = next;
+    coordinates.sort((a, b) => (a.steps - b.steps));
   }
 }
 
-function getAdjacentCellsStraight(cell, steps) {
+function isUnitApproachableFromDirection(unit, cell, direction) {
+  if (direction.dx < 0) {
+    return !cell.units.find(body => (body.x < unit.body.x));
+  } else if (direction.dx > 0) {
+    return !cell.units.find(body => (body.x > unit.body.x));
+  } else if (direction.dy < 0) {
+    return !cell.units.find(body => (body.y < unit.body.y));
+  } else if (direction.dy > 0) {
+    return !cell.units.find(body => (body.y > unit.body.y));
+  }
+}
+
+function getAdjacentCellsStraight(coordinates) {
   return [
-    { row: cell.row, col: cell.col - 1, steps: steps + 1 },
-    { row: cell.row, col: cell.col + 1, steps: steps + 1 },
-    { row: cell.row - 1, col: cell.col, steps: steps + 1 },
-    { row: cell.row + 1, col: cell.col, steps: steps + 1 },
+    { row: coordinates.row, col: coordinates.col - 1, steps: coordinates.steps + 1, dx: -1, dy:  0 },
+    { row: coordinates.row, col: coordinates.col + 1, steps: coordinates.steps + 1, dx:  1, dy:  0 },
+    { row: coordinates.row - 1, col: coordinates.col, steps: coordinates.steps + 1, dx:  0, dy: -1 },
+    { row: coordinates.row + 1, col: coordinates.col, steps: coordinates.steps + 1, dx:  0, dy:  1 },
   ];
 }
 
-function getAdjacentCellsDiagonal(cell, steps) {
+function getAdjacentCellsDiagonal(coordinates) {
   return [
-    { row: cell.row - 1, col: cell.col - 1, steps: steps + STEP_DIAGONAL },
-    { row: cell.row + 1, col: cell.col + 1, steps: steps + STEP_DIAGONAL },
-    { row: cell.row - 1, col: cell.col + 1, steps: steps + STEP_DIAGONAL },
-    { row: cell.row + 1, col: cell.col - 1, steps: steps + STEP_DIAGONAL },
+    { row: coordinates.row - 1, col: coordinates.col - 1, steps: coordinates.steps + STEP_DIAGONAL },
+    { row: coordinates.row + 1, col: coordinates.col + 1, steps: coordinates.steps + STEP_DIAGONAL },
+    { row: coordinates.row - 1, col: coordinates.col + 1, steps: coordinates.steps + STEP_DIAGONAL },
+    { row: coordinates.row + 1, col: coordinates.col - 1, steps: coordinates.steps + STEP_DIAGONAL },
   ];
-}
-
-function distance(a, b) {
-  return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) - a.radius - b.radius;
 }
