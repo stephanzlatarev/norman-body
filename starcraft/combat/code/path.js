@@ -21,7 +21,7 @@ export default class Path {
     }
 
     findPath(this.grid, getCol(this.boundaries, this.warrior.body), getRow(this.boundaries, this.warrior.body));
-this.show();
+
     return this;
   }
 
