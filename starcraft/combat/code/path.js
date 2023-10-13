@@ -1,5 +1,6 @@
 
-const STEP_DIAGONAL = Math.sqrt(2);
+const GRID = 0.2;
+const DIAGONAL = Math.sqrt(GRID * GRID * 2);
 
 // TODO: Consider the radius of warrior and units when finding path. The warrior is not able to move between units that are close together.
 // TODO: Consider the weapon range of warrior when calculating the steps to reach an enemy.
@@ -9,51 +10,42 @@ export default class Path {
     this.warrior = warrior;
   }
 
-  cell(col, row) {
-    if (this.grid[row] && this.grid[row][col]) {
-      return this.grid[row][col];
-    }
-  }
-
   calculate(units) {
     this.boundaries = findBoundaries(this.warrior, units);
-
-    const warriorCol = getCol(this.boundaries, this.warrior.body);
-    const warriorRow = getRow(this.boundaries, this.warrior.body);
-
     this.grid = createGrid(this.boundaries);
 
     for (const unit of units) {
-      markUnit(this.grid, this.boundaries, unit.body);
+      if (unit !== this.warrior) {
+        markUnit(this.grid, this.boundaries, unit);
+      }
     }
 
-    findPath(this.grid, warriorRow, warriorCol);
-
+    findPath(this.grid, getCol(this.boundaries, this.warrior.body), getRow(this.boundaries, this.warrior.body));
+this.show();
     return this;
   }
 
   getStepsToReach(enemy) {
+    const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID);
     const col = getCol(this.boundaries, enemy.body);
     const row = getRow(this.boundaries, enemy.body);
-    const target = this.cell(col, row);
+    const target = getSteps(this.grid, col, row);
 
-    if (!target) return Infinity;
+    if (target >= 0) {
+      let bestSteps = target;
 
-    const coordinates = { row: row, col: col };
+      for (const cell of getSpreadCells(this.grid, col, row, spread)) {
+        const steps = getSteps(this.grid, cell.col, cell.row);
 
-    let bestSteps = (target.steps >= 0) ? target.steps : Infinity;
-
-    for (const c of getAdjacentCellsStraight(coordinates)) {
-      if (this.grid[c.row] && this.grid[c.row][c.col]) {
-        const cell = this.grid[c.row][c.col];
-
-        if ((cell.steps < bestSteps) && isUnitApproachableFromDirection(enemy, target, c)) {
-          bestSteps = cell.steps;
+        if (steps < bestSteps) {
+          bestSteps = steps;
         }
       }
+
+      return Math.max(bestSteps, 0);
     }
 
-    return Math.max(bestSteps, 0);
+    return Infinity;
   }
 
   show(title) {
@@ -62,13 +54,13 @@ export default class Path {
       const row = this.grid[i];
       const line = [];
 
-      for (const cell of row) {
-        if (cell.steps === Infinity) {
+      for (const steps of row) {
+        if (steps === Infinity) {
           line.push("##");
-        } else if (cell.steps >= 10) {
-          line.push(Math.floor(cell.steps));
-        } else if (cell.steps >= 0) {
-          line.push(" " + Math.floor(cell.steps));
+        } else if (steps >= 10) {
+          line.push(Math.floor(steps));
+        } else if (steps >= 0) {
+          line.push(" " + Math.floor(steps));
         } else {
           line.push(" .");
         }
@@ -80,33 +72,41 @@ export default class Path {
 }
 
 function findBoundaries(warrior, units) {
+  const margin = warrior.body.radius + warrior.body.radius + GRID;
+
   let top = warrior.body.y;
   let left = warrior.body.x;
   let right = warrior.body.x;
   let bottom = warrior.body.y;
 
   for (const unit of units) {
-    if (unit.body.x < left) left = unit.body.x;
-    if (unit.body.y < top) top = unit.body.y;
-    if (unit.body.x > right) right = unit.body.x;
-    if (unit.body.y > bottom) bottom = unit.body.y;
+    if (unit.body.x - unit.body.radius < left) left = unit.body.x - unit.body.radius;
+    if (unit.body.y - unit.body.radius < top) top = unit.body.y - unit.body.radius;
+    if (unit.body.x + unit.body.radius > right) right = unit.body.x + unit.body.radius;
+    if (unit.body.y + unit.body.radius > bottom) bottom = unit.body.y + unit.body.radius;
   }
+
+  top = Math.floor(top - margin);
+  left = Math.floor(left - margin);
+  right = Math.ceil(right + margin);
+  bottom = Math.ceil(bottom + margin);
 
   return {
     top: top,
     left: left,
-    width: (right - left) + 3,
-    height: (bottom - top) + 3,
+    width: right - left + GRID,
+    height: bottom - top + GRID,
+    gap: Math.floor(warrior.body.radius / GRID) * GRID,
   };
 }
 
 function createGrid(boundaries) {
   const grid = [];
 
-  for (let i = 0; i < boundaries.height; i++) {
+  for (let i = 0; i < boundaries.height; i += GRID) {
     const row = [];
 
-    for (let j = 0; j < boundaries.width; j++) {
+    for (let j = 0; j < boundaries.width; j += GRID) {
       row.push({ steps: undefined, units: [] });
     }
 
@@ -117,23 +117,33 @@ function createGrid(boundaries) {
 }
 
 function getCol(boundaries, pos) {
-  return Math.floor(pos.x - boundaries.left) + 1;
+  return Math.floor((pos.x - boundaries.left) / GRID);
 }
 
 function getRow(boundaries, pos) {
-  return Math.floor(pos.y - boundaries.top) + 1;
+  return Math.floor((pos.y - boundaries.top) / GRID);
 }
 
-function markUnit(grid, boundaries, pos) {
-  const cell = grid[getRow(boundaries, pos)][getCol(boundaries, pos)];
-  cell.steps = Infinity;
-  cell.units.push(pos);
+function getSteps(grid, col, row) {
+  if (grid[row] && (grid[row][col] >= 0)) {
+    return grid[row][col];
+  }
 }
 
-function findPath(grid, startRow, startCol) {
+function markUnit(grid, boundaries, unit) {
+  const col = getCol(boundaries, unit.body);
+  const row = getRow(boundaries, unit.body);
+  const spread = Math.ceil(unit.body.radius / GRID) + Math.floor(boundaries.gap / GRID) - 1;
+
+  for (const cell of getSpreadCells(grid, col, row, spread)) {
+    grid[cell.row][cell.col] = Infinity;
+  }
+}
+
+function findPath(grid, startCol, startRow) {
   let coordinates = [{ row: startRow, col: startCol, steps: 0 }];
 
-  grid[startRow][startCol].steps = undefined;
+  grid[startRow][startCol] = undefined;
 
   while (coordinates.length) {
     const next = [];
@@ -143,9 +153,9 @@ function findPath(grid, startRow, startCol) {
       if ((c.row < 0) || (c.row >= grid.length) || (c.col < 0) || (c.col >= grid[c.row].length)) continue;
 
       // Check if cell is already visited
-      if (grid[c.row][c.col].steps >= 0) continue;
+      if (grid[c.row][c.col] >= 0) continue;
 
-      grid[c.row][c.col].steps = c.steps;
+      grid[c.row][c.col] = c.steps;
       next.push(...getAdjacentCellsStraight(c));
       next.push(...getAdjacentCellsDiagonal(c));
     }
@@ -155,32 +165,38 @@ function findPath(grid, startRow, startCol) {
   }
 }
 
-function isUnitApproachableFromDirection(unit, cell, direction) {
-  if (direction.dx < 0) {
-    return !cell.units.find(body => (body.x < unit.body.x));
-  } else if (direction.dx > 0) {
-    return !cell.units.find(body => (body.x > unit.body.x));
-  } else if (direction.dy < 0) {
-    return !cell.units.find(body => (body.y < unit.body.y));
-  } else if (direction.dy > 0) {
-    return !cell.units.find(body => (body.y > unit.body.y));
-  }
-}
-
 function getAdjacentCellsStraight(coordinates) {
   return [
-    { row: coordinates.row, col: coordinates.col - 1, steps: coordinates.steps + 1, dx: -1, dy:  0 },
-    { row: coordinates.row, col: coordinates.col + 1, steps: coordinates.steps + 1, dx:  1, dy:  0 },
-    { row: coordinates.row - 1, col: coordinates.col, steps: coordinates.steps + 1, dx:  0, dy: -1 },
-    { row: coordinates.row + 1, col: coordinates.col, steps: coordinates.steps + 1, dx:  0, dy:  1 },
+    { row: coordinates.row, col: coordinates.col - 1, steps: coordinates.steps + GRID },
+    { row: coordinates.row, col: coordinates.col + 1, steps: coordinates.steps + GRID },
+    { row: coordinates.row - 1, col: coordinates.col, steps: coordinates.steps + GRID },
+    { row: coordinates.row + 1, col: coordinates.col, steps: coordinates.steps + GRID },
   ];
 }
 
 function getAdjacentCellsDiagonal(coordinates) {
   return [
-    { row: coordinates.row - 1, col: coordinates.col - 1, steps: coordinates.steps + STEP_DIAGONAL },
-    { row: coordinates.row + 1, col: coordinates.col + 1, steps: coordinates.steps + STEP_DIAGONAL },
-    { row: coordinates.row - 1, col: coordinates.col + 1, steps: coordinates.steps + STEP_DIAGONAL },
-    { row: coordinates.row + 1, col: coordinates.col - 1, steps: coordinates.steps + STEP_DIAGONAL },
+    { row: coordinates.row - 1, col: coordinates.col - 1, steps: coordinates.steps + DIAGONAL },
+    { row: coordinates.row + 1, col: coordinates.col + 1, steps: coordinates.steps + DIAGONAL },
+    { row: coordinates.row - 1, col: coordinates.col + 1, steps: coordinates.steps + DIAGONAL },
+    { row: coordinates.row + 1, col: coordinates.col - 1, steps: coordinates.steps + DIAGONAL },
   ];
+}
+
+function getSpreadCells(grid, col, row, spread) {
+  const cells = [];
+
+  for (let dc = -spread; dc <= spread; dc++) {
+    for (let dr = -spread; dr <= spread; dr++) {
+      // Check if cell is outside the grid
+      if ((row + dr < 0) || (row + dr >= grid.length) || (col + dc < 0) || (col + dc >= grid[row + dr].length)) continue;
+
+      // Check if cell is within spread
+      if ((dc*dc + dr*dr) > spread*spread) continue;
+
+      cells.push({ row: row + dr, col: col + dc });
+    }
+  }
+
+  return cells;
 }

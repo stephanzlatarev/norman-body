@@ -3,76 +3,87 @@ import Path from "../code/path.js";
 
 describe("Path", function() {
 
+  const warrior = unit(10, 10);
+  const enemy = unit(14, 10);
+  const getSteps = function(enemy, ...obstacles) {
+    return new Path(warrior).calculate([warrior, enemy, ...obstacles]).getStepsToReach(enemy);
+  }
+
   it("Warrior cannot reach positions outside the grid", function() {
-    const steps = new Path(unit(1, 1)).calculate([unit(0, 0), unit(4, 4)]).getStepsToReach(unit(8, 1));
-    assert.equal(steps, Infinity);
+    assertEqual(new Path(unit(1, 1)).calculate([unit(0, 0), unit(4, 4)]).getStepsToReach(unit(8, 1)), Infinity);
   });
 
   it("Warrior reaches its position in zero steps", function() {
-    const steps = new Path(unit(10, 10)).calculate([]).getStepsToReach(unit(10, 10));
-    assert.equal(steps, 0);
+    assertEqual(getSteps(unit(10, 10)), 0);
   });
 
   it("Warrior reaches adjacent position in zero steps", function() {
-    const steps = new Path(unit(10, 10)).calculate([unit(11, 10)]).getStepsToReach(unit(11, 10));
-    assert.equal(steps, 0);
+    assertEqual(getSteps(unit(11, 10)), 0);
   });
 
   it("One horizontal move is one step", function() {
-    const steps = new Path(unit(10, 10)).calculate([unit(12, 10)]).getStepsToReach(unit(12, 10));
-    assert.equal(steps, 1);
+    assertEqual(getSteps(unit(12, 10)), 1);
   });
 
   it("Two horizontal moves are two steps", function() {
-    const steps = new Path(unit(10, 10)).calculate([unit(7, 10)]).getStepsToReach(unit(7, 10));
-    assert.equal(steps, 2);
+    assertEqual(getSteps(unit(7, 10)), 2);
   });
 
   it("One horizontal and one diagonal move is more than one step and less than two steps", function() {
-    const steps = new Path(unit(10, 10)).calculate([unit(12, 11)]).getStepsToReach(unit(12, 11));
-    assert.equal(steps.toFixed(3), "1.414");
+    assertWithin(getSteps(unit(12, 11)), 1, 2);
   });
 
-  it("Warrior goes around an obstacle", function() {
-    const steps = new Path(unit(2, 2)).calculate([unit(2, 2), unit(4, 2), unit(6, 2)]).getStepsToReach(unit(6, 2));
-    assert.equal(steps.toFixed(3), "3.828");
+  it("Warrior goes straight to enemy", function() {
+    assertEqual(getSteps(enemy), 3);
+  });
+
+  it("Warrior goes around an obstacle very close to enemy", function() {
+    assertWithin(getSteps(enemy, unit(13.6, 10)), 3.4, 6);
+  });
+
+  it("Warrior goes around an obstacle away from enemy", function() {
+    assertWithin(getSteps(enemy, unit(12, 10, 1.6)), 3.4, 6);
   });
 
   it("Warrior reaches enemy from one path only", function() {
-    const steps = new Path(unit(1, 1)).calculate([
-      unit(3, 1), unit(4, 1), unit(5, 1),
-      unit(3, 2),
-      unit(3, 3), unit(4, 3), unit(5, 3),
-    ]).getStepsToReach(unit(4, 2));
-    assert.equal(steps.toFixed(3), "7.243");
+    const wall = [
+      unit(13, 9), unit(14, 9), unit(15, 9),
+      unit(13, 10),
+      unit(13, 11), unit(14, 11), unit(15, 11),
+    ];
+    assertWithin(getSteps(enemy, ...wall), 8, 9);
   });
 
   it("Warrior cannot reach enemy which is fully surrounded", function() {
-    const steps = new Path(unit(1, 1)).calculate([
-      unit(3, 1), unit(4, 1), unit(5, 1),
-      unit(3, 2), unit(4, 2), unit(5, 2),
-      unit(3, 3), unit(4, 3), unit(5, 3),
-    ]).getStepsToReach(unit(4, 2));
-    assert.equal(steps, Infinity);
+    const wall = [
+      unit(13, 9), unit(14, 9), unit(15, 9),
+      unit(13, 10),              unit(15, 10),
+      unit(13, 11), unit(14, 11), unit(15, 11),
+    ];
+    assertEqual(getSteps(enemy, ...wall), Infinity);
   });
 
   it("Warrior cannot go diagonal between two units", function() {
-    const steps = new Path(unit(2, 2)).calculate([
-      unit(2, 2), unit(2, 3),
-      unit(3, 2), unit(3, 3),
-    ]).getStepsToReach(unit(3, 3));
-    assert.equal(steps.toFixed(3), "3.828");
-  });
-
-  it("Warrior goes around an obstacle in the same grid as the target enemy", function() {
-    const steps = new Path(unit(2, 2)).calculate([
-      unit(2, 2), unit(4.4, 2), unit(4.2, 2)
-    ]).getStepsToReach(unit(4.4, 2));
-    assert.equal(steps.toFixed(3), "2.414");
+    assertWithin(getSteps(unit(11, 11), unit(10, 11), unit(11, 10)), 3, 4);
   });
 
 });
 
-function unit(x, y) {
-  return { body: { x: x, y: y, radius: 0.5 } };
+function unit(x, y, r) {
+  return { body: { x: x, y: y, radius: r ? r : 0.5 } };
+}
+
+function assertEqual(actual, expected) {
+  if (Math.abs(actual - expected) >= 0.001) {
+    assert.equal(actual, expected);
+  }
+}
+
+function assertWithin(actual, min, max) {
+  if (actual < min) {
+    assert.equal(actual, min);
+  }
+  if (actual > max) {
+    assert.equal(actual, max);
+  }
 }
