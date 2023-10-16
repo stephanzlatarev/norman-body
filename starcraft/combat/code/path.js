@@ -11,6 +11,7 @@ export default class Path {
   }
 
   calculate(units) {
+    this.units = units;
     this.boundaries = findBoundaries(this.warrior, units);
     this.grid = createGrid(this.boundaries);
 
@@ -26,7 +27,7 @@ export default class Path {
   }
 
   getStepsToReach(enemy) {
-    const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID);
+    const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID) + 1;
     const col = getCol(this.boundaries, enemy.body);
     const row = getRow(this.boundaries, enemy.body);
     const target = getSteps(this.grid, col, row);
@@ -50,23 +51,32 @@ export default class Path {
 
   show(title) {
     if (title) console.log("---", title, "---");
+
+    const ids = {};
+    for (const unit of this.units) ids[getCol(this.boundaries, unit.body) + ":" + getRow(this.boundaries, unit.body)] = unit.nick;
+
     for (let i = this.grid.length - 1; i >= 0; i--) {
       const row = this.grid[i];
       const line = [];
 
-      for (const steps of row) {
-        if (steps === Infinity) {
-          line.push("##");
+      for (let col = 0; col < row.length; col++) {
+        const steps = row[col];
+        const id = ids[col + ":" + i];
+
+        if (id) {
+          line.push(id);
+        } else if (steps === Infinity) {
+          line.push(" ##");
         } else if (steps >= 10) {
-          line.push(Math.floor(steps));
-        } else if (steps >= 0) {
           line.push(" " + Math.floor(steps));
+        } else if (steps >= 0) {
+          line.push("  " + Math.floor(steps));
         } else {
-          line.push(" .");
+          line.push("  .");
         }
       }
 
-      console.log(line.join(" "));
+      console.log(line.join(""));
     }
   }
 }
