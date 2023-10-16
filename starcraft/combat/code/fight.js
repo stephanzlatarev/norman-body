@@ -1,6 +1,6 @@
 import Path from "./path.js";
 
-const WALK_PENALTY = 1;
+const WALK_PENALTY = 2;
 
 export default class Fight {
 
