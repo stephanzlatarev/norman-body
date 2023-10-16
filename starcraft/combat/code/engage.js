@@ -36,18 +36,19 @@ export default function(combat) {
     if (!bestEngagement) break;
 
     engagements.push(bestEngagement);
-    console.log(
-      "engage:", bestEngagement.warriors.map(w => w.nick).join(" "),
-      "vs", bestEngagement.enemy.nick,
-      "score:", Math.floor(bestScore)
-    );
 
     remove(enemies, bestEngagement.enemy);
     remove(warriors, ...bestEngagement.warriors);
   }
 
-  if (warriors.length) {
-    console.log("TODO: Assign remaining warriors to closest fight");
+  // TODO: Assign remaining warriors to closest fight
+  while (warriors.length && engagements.length) {
+    for (const fight of engagements) {
+      const warrior = warriors[warriors.length - 1];
+      fight.warriors.push(warrior);
+      warriors.length = warriors.length - 1;
+      if (!warriors.length) break;
+    }
   }
 
   return engagements;
@@ -75,11 +76,6 @@ function calculateScore(fight, band, end, fights) {
   }
 
   loss /= fights.length;
-
-  console.log("score:", Math.floor(gain - loss), "=", Math.floor(gain), "-", Math.floor(loss),
-      "\ttill:", end,
-      "\t", fight.enemy.nick, "vs", band.map(w => w.nick).join(" "),
-  );
 
   return gain - loss;
 }
