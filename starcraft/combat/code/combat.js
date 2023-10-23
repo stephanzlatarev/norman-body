@@ -6,26 +6,31 @@ const LOG = false;
 export default class Combat {
 
   run(units) {
-    this.units = units;
 
     // Body skill "engage"
-    const fights = engage(this);
+    const fights = engage(units);
 
     // Body skill "maneuver"
     const commands = maneuver(fights);
 
-    if (LOG) log(units, commands);
+    if (LOG) log(units, fights, commands);
 
     return commands;
   }
 
 }
 
-function log(units, commands) {
+function log(units, fights, commands) {
   const logs = [];
 
   for (const unit of units.values()) {
-    logs.push(JSON.stringify(unit));
+    const u = {...unit};
+    delete u.path;
+    logs.push(JSON.stringify(u));
+  }
+
+  for (const fight of fights) {
+    logs.push(fight.toJsonString());
   }
 
   for (const command of commands) {

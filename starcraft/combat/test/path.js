@@ -6,7 +6,7 @@ describe("Path", function() {
   const warrior = unit(10, 10);
   const enemy = unit(14, 10);
   const getSteps = function(enemy, ...obstacles) {
-    return new Path(warrior).calculate([warrior, enemy, ...obstacles]).getStepsToReach(enemy);
+    return new Path(warrior).calculate(map(warrior, enemy, ...obstacles)).getStepsToReach(enemy);
   }
 
   it("Warrior cannot reach positions outside the grid", function() {
@@ -38,11 +38,11 @@ describe("Path", function() {
   });
 
   it("Warrior goes around an obstacle very close to enemy", function() {
-    assertWithin(getSteps(enemy, unit(13.6, 10)), 3.4, 6);
+    assertWithin(getSteps(enemy, unit(13.6, 10)), 4, 8);
   });
 
   it("Warrior goes around an obstacle away from enemy", function() {
-    assertWithin(getSteps(enemy, unit(12, 10, 1.6)), 3.4, 6);
+    assertWithin(getSteps(enemy, unit(12, 10, 1.6)), 4, 8);
   });
 
   it("Warrior reaches enemy from one path only", function() {
@@ -51,7 +51,7 @@ describe("Path", function() {
       unit(13, 10),
       unit(13, 11), unit(14, 11), unit(15, 11),
     ];
-    assertWithin(getSteps(enemy, ...wall), 8, 9);
+    assertWithin(getSteps(enemy, ...wall), 8, 10);
   });
 
   it("Warrior cannot reach enemy which is fully surrounded", function() {
@@ -64,13 +64,23 @@ describe("Path", function() {
   });
 
   it("Warrior cannot go diagonal between two units", function() {
-    assertWithin(getSteps(unit(11, 11), unit(10, 11), unit(11, 10)), 3, 4);
+    assertWithin(getSteps(unit(11, 11), unit(10, 11), unit(11, 10)), 4, 5);
   });
 
 });
 
 function unit(x, y, r) {
-  return { body: { x: x, y: y, radius: r ? r : 0.5 } };
+  return { tag: `${x}:${y}`, body: { x: x, y: y, radius: r ? r : 0.5 }, weapon: { range: 0 } };
+}
+
+function map(...units) {
+  const map = new Map();
+
+  for (const unit of units) {
+    map.set(unit.tag, unit);
+  }
+
+  return map;
 }
 
 function assertEqual(actual, expected) {

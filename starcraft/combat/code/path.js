@@ -15,7 +15,7 @@ export default class Path {
     this.boundaries = findBoundaries(this.warrior, units);
     this.grid = createGrid(this.boundaries);
 
-    for (const unit of units) {
+    for (const unit of units.values()) {
       if (unit !== this.warrior) {
         markUnit(this.grid, this.boundaries, unit);
       }
@@ -27,6 +27,8 @@ export default class Path {
   }
 
   getStepsToReach(enemy) {
+    if (distance(this.warrior.body, enemy.body) < this.warrior.body.radius + this.warrior.weapon.range + enemy.body.radius) return 0;
+
     const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID) + 1;
     const col = getCol(this.boundaries, enemy.body);
     const row = getRow(this.boundaries, enemy.body);
@@ -43,7 +45,7 @@ export default class Path {
         }
       }
 
-      return Math.max(bestSteps, 0);
+      return (bestSteps > 0) ? bestSteps + GRID : 0;
     }
 
     return Infinity;
@@ -53,7 +55,7 @@ export default class Path {
     if (title) console.log("---", title, "---");
 
     const ids = {};
-    for (const unit of this.units) ids[getCol(this.boundaries, unit.body) + ":" + getRow(this.boundaries, unit.body)] = unit.nick;
+    for (const unit of this.units.values()) ids[getCol(this.boundaries, unit.body) + ":" + getRow(this.boundaries, unit.body)] = unit.nick;
 
     for (let i = this.grid.length - 1; i >= 0; i--) {
       const row = this.grid[i];
@@ -89,7 +91,7 @@ function findBoundaries(warrior, units) {
   let right = warrior.body.x;
   let bottom = warrior.body.y;
 
-  for (const unit of units) {
+  for (const unit of units.values()) {
     if (unit.body.x - unit.body.radius < left) left = unit.body.x - unit.body.radius;
     if (unit.body.y - unit.body.radius < top) top = unit.body.y - unit.body.radius;
     if (unit.body.x + unit.body.radius > right) right = unit.body.x + unit.body.radius;
@@ -143,7 +145,7 @@ function getSteps(grid, col, row) {
 function markUnit(grid, boundaries, unit) {
   const col = getCol(boundaries, unit.body);
   const row = getRow(boundaries, unit.body);
-  const spread = Math.ceil(unit.body.radius / GRID) + Math.floor(boundaries.gap / GRID) - 1;
+  const spread = Math.ceil(unit.body.radius / GRID) + Math.floor(boundaries.gap / GRID);
 
   for (const cell of getSpreadCells(grid, col, row, spread)) {
     grid[cell.row][cell.col] = Infinity;
@@ -209,4 +211,8 @@ function getSpreadCells(grid, col, row, spread) {
   }
 
   return cells;
+}
+
+function distance(a, b) {
+  return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }

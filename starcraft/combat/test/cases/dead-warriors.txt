@@ -1,12 +1,14 @@
 
 # All warriors should get commands
-{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
-{"tag":"B", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 2, "y": 2 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
-{"tag":"X", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 3 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"A", "isWarrior": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"B", "isWarrior": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"X", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"warriors": ["A", "B"], "enemy": "X"}
 {"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
 {"unitTags": ["B"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
 
 # Dead warriors should not get commands
-{"tag":"A", "owner": 1, "kind": {"damage": 10, "range": 1}, "pos": { "x": 1, "y": 1 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
-{"tag":"Y", "owner": 2, "kind": {"damage": 10, "range": 1}, "pos": { "x": 3, "y": 3 }, "order": { "abilityId": 0 }, "radius": 1, "health": 1, "shield": 0}
+{"tag":"A", "isWarrior": true, "body": {"x": 2, "y": 2, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"Y", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"warriors": ["A"], "enemy": "Y"}
 {"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}

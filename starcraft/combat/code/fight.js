@@ -1,106 +1,104 @@
-import Path from "./path.js";
 
-const WALK_PENALTY = 2;
+const WALK_PENALTY = 1;
 
 export default class Fight {
 
-  constructor(enemy, warriors, units) {
+  constructor(enemy, warriors) {
     this.enemy = enemy;
+    this.allWarriors = warriors;
+    this.warriors = [];
 
-    const plan = planFight(enemy, warriors, units);
-
-    this.attacks = plan.attacks;
-    this.start = plan.start;
-    this.end = plan.end;
+    this.steps = new Map();
+    for (const warrior of warriors) {
+      this.steps.set(warrior, calculateSteps(warrior, enemy));
+    }
   }
 
-  getBand(warrior) {
-    const band = [];
+  engageWarrior(warrior) {
+    const index = this.warriors.indexOf(warrior);
 
-    for (const attack of this.attacks) {
-      band.push(attack.warrior);
-
-      if (warrior === attack.warrior) break;
+    if (index < 0) {
+      this.warriors.push(warrior);
+      return true;
     }
 
-    return band;
+    return false;
   }
 
-  getContribution(band) {
-    let contribution = 0;
+  disengageWarrior(warrior) {
+    const index = this.warriors.indexOf(warrior);
 
-    for (const attack of this.attacks) {
-      if (band.indexOf(attack.warrior) >= 0) {
-        contribution += attack.contribution;
-      }
+    if (index >= 0) {
+      this.warriors.splice(index, 1);
+      return true;
     }
 
-    return contribution;
+    return false;
   }
 
+  efficiency(assessEngagedWarriors) {
+    const warriors = assessEngagedWarriors ? this.warriors : this.allWarriors;
+
+    const warriorAttacks = [];
+    for (const warrior of warriors) {
+      warriorAttacks.push({ start: this.steps.get(warrior), dps: warrior.weapon.damage / warrior.weapon.speed });
+    }
+
+    const stepsToKillEnemy = stepsToKill(this.enemy, warriorAttacks);
+    const enemyDamagePerStep = this.enemy.weapon.damage / this.enemy.weapon.speed;
+    const gain = enemyDamagePerStep / stepsToKillEnemy;
+
+    const enemyAttacks = [{ start: 0, dps: this.enemy.weapon.damage / this.enemy.weapon.speed / warriors.length }];
+
+    let loss = 0;
+
+    for (const warrior of warriors) {
+      const stepsToReach = this.steps.get(warrior);
+      const stepsToDie = stepsToKill(warrior, enemyAttacks);
+      const damagePerStep = warrior.weapon.damage / warrior.weapon.speed;
+
+      loss += damagePerStep / stepsToDie;
+      loss += stepsToReach / stepsToKillEnemy;
+    }
+
+    return {
+      gain: gain,
+      loss: loss,
+      efficiency: gain / loss,
+    }
+  }
+
+  toJsonString() {
+    const warriors = this.warriors.map(w => w.tag);
+    warriors.sort();
+
+    return JSON.stringify({ warriors: warriors, enemy: this.enemy.tag });
+  }
 }
 
-class Attack {
+function calculateSteps(warrior, enemy) {
+  const reach = warrior.path.getStepsToReach(enemy);
+  const stepsToReachEnemy = (reach / warrior.body.speed) * WALK_PENALTY;
+  const stepsToLoadWeapon = warrior.weapon.cooldown;
 
-  constructor(warrior, enemy, units) {
-    this.warrior = warrior;
-    this.enemy = enemy;
-
-    const path = new Path(warrior).calculate(units);
-    const reach = path.getStepsToReach(enemy);
-    const stepsToReachEnemy = (reach / warrior.body.speed) * WALK_PENALTY;
-    const stepsToLoadWeapon = warrior.weapon.cooldown;
-
-    this.start = Math.max(stepsToReachEnemy, stepsToLoadWeapon);
-    this.damage = warrior.weapon.damage;
-    this.speed = warrior.weapon.speed;
-
-    this.cooldown = warrior.weapon.cooldown;
-    this.contribution = 0;
-  }
-
+  return Math.max(stepsToReachEnemy, stepsToLoadWeapon);
 }
 
-function planFight(enemy, warriors, units) {
-  const attacks = [];
-
-  for (const warrior of warriors) {
-    attacks.push(new Attack(warrior, enemy, units));
-  }
+function stepsToKill(unit, attacks) {
+  let health = unit.armor.health;
+  let dps = 0;
+  let step = 0;
 
   attacks.sort((a, b) => (a.start - b.start));
 
-  let steps = 0;
-  let start = Infinity;
-  let contributions = 0;
-
-  for (let enemyHealth = enemy.armor.health; enemyHealth > 0; steps++) {
-    for (const attack of attacks) {
-      if (steps < attack.start) continue;
-
-      if (attack.cooldown <= 0) {
-        if (steps < start) start = steps;
-
-        attack.contribution += attack.damage;
-        attack.cooldown += attack.speed;
-
-        contributions += attack.damage;
-        enemyHealth -= attack.damage;
-      } else {
-        attack.cooldown--;
-      }
-    }
-  }
-
   for (const attack of attacks) {
-    attack.contribution /= contributions;
+    const damage = (attack.start - step) * dps;
+
+    if (damage >= health) break;
+
+    health -= damage;
+    dps += attack.dps;
   }
 
-  attacks.sort((a, b) => (b.contribution - a.contribution));
-
-  return {
-    attacks: attacks,
-    start: start,
-    end: steps,
-  };
+  return step + health / dps;
 }

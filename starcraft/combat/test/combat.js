@@ -10,32 +10,22 @@ describe("Combat", function() {
       const combat = new Combat();
 
       for (const step of testcase.steps) {
-        const commands = combat.run(map(step.units));
+        const commands = combat.run(step.units);
 
         commands.sort(compareByAlphabetOrder);
         step.commands.sort(compareByAlphabetOrder);
 
         for (let i = 0; i < step.commands.length; i++) {
-          assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]), (step.comment ? step.comment : "Wrong command"));
+          assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]), "Wrong command: " + step.comment);
         }
 
-        assert.equal(commands.length, step.commands.length, (step.comment ? step.comment : "Wrong number of commands"));
+        assert.equal(commands.length, step.commands.length, "Wrong number of commands: " + step.comment);
       }
     });
 
   }
 
 });
-
-function map(units) {
-  const map = new Map();
-
-  for (const unit of units) {
-    map.set(unit.tag, unit);
-  }
-
-  return map;
-}
 
 function compareByAlphabetOrder(a, b) {
   const as = a.unitTags[0];

@@ -1,100 +1,115 @@
 import Fight from "./fight.js";
+import Path from "./path.js";
 
-export default function(combat) {
-  const units = Array.from(combat.units.values());
+export default function(units) {
   const warriors = [];
   const enemies = [];
-  const engagements = []
 
-  for (const unit of units) {
+  for (const unit of units.values()) {
     if (unit.isEnemy) {
       enemies.push(unit);
     } else if (unit.isWarrior) {
+      unit.path = new Path(unit).calculate(units);
       warriors.push(unit);
     }
   }
 
-  while (warriors.length && enemies.length) {
-    const fights = enemies.map(enemy => new Fight(enemy, warriors, units));
-    const end = calculateEnd(fights);
+  const fights = [];
+  for (const enemy of enemies) {
+    fights.push(new Fight(enemy, warriors));
+  }
 
-    let bestScore = -Infinity;
-    let bestEngagement;
+  const engagements = new Map();
+  const efficiencies = new Map();
+  for (const warrior of warriors) {
+    efficiencies.set(warrior, -Infinity);
+  }
 
-    for (const fight of fights) {
-      for (const warrior of warriors) {
-        const band = fight.getBand(warrior);
-        const score = calculateScore(fight, band, end, fights);
+  while (true) {
+    let bestEfficiency = -Infinity;
+    let engageWarrior;
+    let engageFight;
 
-        if (score > bestScore) {
-          bestScore = score;
-          bestEngagement = { enemy: fight.enemy, warriors: band };
+    for (const warrior of warriors) {
+      for (const fight of fights) {
+        let thisEfficiency = efficiency(fights, fight, warrior);
+
+        console.log(thisEfficiency.toFixed(2), "\t", warrior.nick, "->", fight.enemy.nick, "|", show(fights));
+
+        if ((thisEfficiency > bestEfficiency) && (thisEfficiency > efficiencies.get(warrior))) {
+          bestEfficiency = thisEfficiency;
+          engageWarrior = warrior;
+          engageFight = fight;
         }
       }
     }
 
-    if (!bestEngagement) break;
+    if (engageWarrior && engageFight) {
+      console.log(bestEfficiency.toFixed(2), "\t", "engage:", engageWarrior.nick, engageFight.enemy.nick);
 
-    engagements.push(bestEngagement);
+      const previousFight = engagements.get(engageWarrior);
+      if (previousFight) previousFight.disengageWarrior(engageWarrior);
 
-    remove(enemies, bestEngagement.enemy);
-    remove(warriors, ...bestEngagement.warriors);
-  }
+      engagements.set(engageWarrior, engageFight);
+      engageFight.engageWarrior(engageWarrior);
 
-  // TODO: Assign remaining warriors to closest fight
-  while (warriors.length && engagements.length) {
-    for (const fight of engagements) {
-      const warrior = warriors[warriors.length - 1];
-      fight.warriors.push(warrior);
-      warriors.length = warriors.length - 1;
-      if (!warriors.length) break;
+      efficiencies.set(engageWarrior, bestEfficiency);
+
+      engageWarrior = null;
+      engageFight = null;
+    } else {
+      break;
     }
   }
 
-  return engagements;
+  return fights.filter(fight => !!fight.warriors.length);
 }
 
-function calculateEnd(fights) {
-  let end = 0;
+function efficiency(fights, fight, warrior) {
+  let totalGain = 0;
+  let totalLoss = 0;
+  let potential = 0;
+
+  for (const f of fights) {
+    let engaged = false;
+
+    if (fight && warrior) {
+      if (f === fight) {
+        engaged = f.engageWarrior(warrior);
+      } else {
+        engaged = f.disengageWarrior(warrior);
+      }
+    }
+
+    if (f == fight) {
+      potential = fight.efficiency(false).efficiency;
+    }
+
+    const { gain, loss } = f.efficiency(true);
+
+    totalGain += gain;
+    totalLoss += loss;
+
+    if (engaged) {
+      if (f === fight) {
+        f.disengageWarrior(warrior);
+      } else {
+        f.engageWarrior(warrior);
+      }
+    }
+  }
+
+  return Math.max(totalGain / totalLoss, potential);
+}
+
+function show(fights) {
+  const line = [];
 
   for (const fight of fights) {
-    end += fight.end;
-  }
-
-  return end;
-}
-
-function calculateScore(fight, band, end, fights) {
-  const gain = calculateContribution(fight, band, end);
-
-  let loss = 0;
-
-  for (const other of fights) {
-    if (other === fight) continue;
-
-    loss += calculateContribution(other, band, end);
-  }
-
-  loss /= fights.length;
-
-  return gain - loss;
-}
-
-function calculateContribution(fight, band, end) {
-  const contribution = fight.getContribution(band);
-  const enemyDamagePerStep = fight.enemy.weapon.damage / fight.enemy.weapon.speed;
-  // TODO: Alternatively use the end of fight with the given band instead of the end of fight with all warriors?
-  const reductionOfEnemyLife = end - fight.end;
-
-  return contribution * enemyDamagePerStep * reductionOfEnemyLife;
-}
-
-function remove(list, ...units) {
-  for (const unit of units) {
-    const index = list.indexOf(unit);
-
-    if (index >= 0) {
-      list.splice(index, 1);
+    if (fight.warriors.length) {
+      line.push(...fight.warriors.map(w => w.nick), "->", fight.enemy.nick);
     }
   }
+
+  return line.join(" | ");
 }
