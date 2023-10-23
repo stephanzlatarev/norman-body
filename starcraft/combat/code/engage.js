@@ -34,7 +34,7 @@ export default function(units) {
       for (const fight of fights) {
         let thisEfficiency = efficiency(fights, fight, warrior);
 
-        console.log(thisEfficiency.toFixed(2), "\t", warrior.nick, "->", fight.enemy.nick, "|", show(fights));
+        console.log(thisEfficiency.toFixed(2), "\t", warrior.nick, "->", fight.enemy.nick, "||", show(fights));
 
         if ((thisEfficiency > bestEfficiency) && (thisEfficiency > efficiencies.get(warrior))) {
           bestEfficiency = thisEfficiency;
@@ -45,7 +45,9 @@ export default function(units) {
     }
 
     if (engageWarrior && engageFight) {
-      console.log(bestEfficiency.toFixed(2), "\t", "engage:", engageWarrior.nick, engageFight.enemy.nick);
+      console.log();
+      console.log(bestEfficiency.toFixed(2), "\t", "engage:", engageWarrior.nick, "->", engageFight.enemy.nick);
+      console.log();
 
       const previousFight = engagements.get(engageWarrior);
       if (previousFight) previousFight.disengageWarrior(engageWarrior);
@@ -103,13 +105,17 @@ function efficiency(fights, fight, warrior) {
 }
 
 function show(fights) {
-  const line = [];
+  const all = [];
 
   for (const fight of fights) {
+    const line = [];
+
     if (fight.warriors.length) {
       line.push(...fight.warriors.map(w => w.nick), "->", fight.enemy.nick);
     }
+
+    all.push(line.join(" "));
   }
 
-  return line.join(" | ");
+  return all.join(" | ");
 }

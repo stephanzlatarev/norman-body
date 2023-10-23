@@ -57,10 +57,17 @@ export default class Fight {
       const stepsToDie = stepsToKill(warrior, enemyAttacks);
       const damagePerStep = warrior.weapon.damage / warrior.weapon.speed;
 
-      loss += damagePerStep / stepsToDie;
-      loss += stepsToReach / stepsToKillEnemy;
+      loss += (damagePerStep / stepsToDie) * (1 + stepsToReach / stepsToKillEnemy);
+console.log(
+  "\t", warrior.nick,
+  "loss value:", damagePerStep.toFixed(4), stepsToDie.toFixed(4), (damagePerStep / stepsToDie).toFixed(4),
+  "loss waste:", stepsToReach.toFixed(4), stepsToKillEnemy.toFixed(4), (stepsToReach / stepsToKillEnemy).toFixed(4),
+);
     }
 
+if (warriors.length) console.log("fight:", warriors.map(w => w.nick).join(" "), "->", this.enemy.nick,
+  "gain:", gain.toFixed(4), "loss:", loss.toFixed(4), "efficiency:", (gain / loss).toFixed(4)
+);
     return {
       gain: gain,
       loss: loss,
@@ -92,12 +99,14 @@ function stepsToKill(unit, attacks) {
   attacks.sort((a, b) => (a.start - b.start));
 
   for (const attack of attacks) {
-    const damage = (attack.start - step) * dps;
+    const steps = attack.start - step;
+    const damage = steps * dps;
 
     if (damage >= health) break;
 
     health -= damage;
     dps += attack.dps;
+    step += steps;
   }
 
   return step + health / dps;

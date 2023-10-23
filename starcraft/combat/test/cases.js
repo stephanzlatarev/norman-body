@@ -35,7 +35,7 @@ function parse(file) {
       if (object.enemy && object.warriors) {
         step.fights.push(object);
       } else if (object.tag) {
-        object.nick = object.tag;
+        object.nick = (object.tag.length > 3) ? object.tag.slice(object.tag.length - 3) : object.tag;
         step.units.set(object.tag, object);
       } else {
         step.commands.push(object);
