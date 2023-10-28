@@ -3,28 +3,30 @@ import cases from "./cases.js";
 import Combat from "../code/combat.js";
 
 describe("Combat", function() {
-
   for (const testcase of cases()) {
 
-    it(testcase.title, function() {
+    describe(testcase.title, function() {
       const combat = new Combat();
 
       for (const step of testcase.steps) {
-        const commands = combat.run(step.units);
 
-        commands.sort(compareByAlphabetOrder);
-        step.commands.sort(compareByAlphabetOrder);
+        it(step.comment, function() {
+          const commands = combat.run(step.units);
+  
+          commands.sort(compareByAlphabetOrder);
+          step.commands.sort(compareByAlphabetOrder);
+  
+          for (let i = 0; i < step.commands.length; i++) {
+            assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]), "Wrong command");
+          }
+  
+          assert.equal(commands.length, step.commands.length, "Wrong number of commands");
+        });
 
-        for (let i = 0; i < step.commands.length; i++) {
-          assert.equal(JSON.stringify(commands[i]), JSON.stringify(step.commands[i]), "Wrong command: " + step.comment);
-        }
-
-        assert.equal(commands.length, step.commands.length, "Wrong number of commands: " + step.comment);
       }
     });
 
   }
-
 });
 
 function compareByAlphabetOrder(a, b) {
