@@ -1,9 +1,51 @@
 import Battle from "./battle.js";
 import Path from "./path.js";
 
-export default function(units) {
-  const battle = startBattle(units);
+const LIMIT_ITERATIONS = 20;
 
+export default function(units, callback) {
+  let battle = startBattle(units);
+  let iteration = 0;
+  let update;
+
+  if (callback) callback(battle);
+
+  while ((iteration++ < LIMIT_ITERATIONS) && (update = updateBattle(battle))) {
+    battle = update;
+
+    if (callback) callback(battle);
+  }
+
+  return battle;
+}
+
+function startBattle(units) {
+  const warriors = [];
+  const enemies = [];
+
+  for (const unit of units.values()) {
+    if (unit.isEnemy) {
+      enemies.push(unit);
+    } else if (unit.isWarrior) {
+      sync(unit, units);
+      warriors.push(unit);
+    }
+  }
+
+  return new Battle(warriors, enemies);
+}
+
+function sync(unit, units) {
+  if (!unit.combat) {
+    unit.combat = {
+      targetUnitTag: null,
+    };
+  }
+
+  unit.combat.path = new Path(unit).calculate(units);
+}
+
+function updateBattle(battle) {
   let bestBattle = battle;
   let efficiency = -Infinity;
 
@@ -29,34 +71,12 @@ export default function(units) {
   }
 
   if ((bestBattle !== battle) && bestBattle.change) {
-    bestBattle.change.warrior.combat.targetUnitTag = bestBattle.change.enemy.tag;
+    const warrior = bestBattle.change.warrior;
+    const enemy = bestBattle.change.enemy;
+
+    // Engage enemy with this warrior
+    warrior.combat.targetUnitTag = enemy.tag;
+
+    return bestBattle;
   }
-
-  return bestBattle;
-}
-
-export function startBattle(units) {
-  const warriors = [];
-  const enemies = [];
-
-  for (const unit of units.values()) {
-    if (unit.isEnemy) {
-      enemies.push(unit);
-    } else if (unit.isWarrior) {
-      sync(unit, units);
-      warriors.push(unit);
-    }
-  }
-
-  return new Battle(warriors, enemies);
-}
-
-function sync(unit, units) {
-  if (!unit.combat) {
-    unit.combat = {
-      targetUnitTag: null,
-    };
-  }
-
-  unit.combat.path = new Path(unit).calculate(units);
 }

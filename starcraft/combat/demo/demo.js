@@ -1,7 +1,9 @@
-import { default as engage, startBattle } from "../code/engage.js";
+import engage from "../code/engage.js";
 
 const WIDTH = 600;
 const HEIGHT = 600;
+
+const LIMIT_ITERATIONS = 20;
 
 let ID = 1;
 const selectors = new Set();
@@ -421,35 +423,13 @@ function calculateBoundaries(step) {
 function calculateBattles(step) {
   const battles = [];
 
-  let battle = startBattle(step.units);
-  battle.id = id();
-  battle.summary = "Start";
-  battles.push(battle);
-
-  let limit = 20;
-  let summary;
-
-  battle = engage(step.units);
-
-  while (battle && battle.change && (limit-- > 0)) {
+  const battle = engage(step.units, function(battle) {
     battle.id = id();
-    battle.summary = battle.change.warrior.nick + " → " + battle.change.enemy.nick;
-
+    battle.summary = battle.change ? battle.change.warrior.nick + " → " + battle.change.enemy.nick : "Start";
     battles.push(battle);
+  });
 
-    if (battle.summary === summary) {
-      battle.summary = "End";
-      break;
-    }
-
-    summary = battle.summary;
-    battle = engage(step.units);
-  }
-
-  if (battles.length) {
-    battle = battles[battles.length - 1];
-    battle.isSelected = true;
-  }
+  battle.isSelected = true;
 
   // Set attacks
   for (const warrior of battle.warriors) {

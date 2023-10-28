@@ -41,9 +41,11 @@ export default class Battle {
         fights.push(new Fight([...fight.warriors, warrior], enemy));
         isEnemyEngaged = true;
       } else if (fight.hasEngagedWarrior(warrior)) {
-        const warriors = [...fight.warriors];
-        warriors.splice(warriors.indexOf(warrior), 1);
-        fights.push(new Fight(warriors, fight.enemy));
+        if (fight.warriors.length > 1) {
+          const warriors = [...fight.warriors];
+          warriors.splice(warriors.indexOf(warrior), 1);
+          fights.push(new Fight(warriors, fight.enemy));
+        }
       } else {
         fights.push(fight);
       }
