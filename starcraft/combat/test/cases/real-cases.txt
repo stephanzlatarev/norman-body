@@ -1,0 +1,34 @@
+
+# Case 1
+{"tag":"4294967297","nick":"297","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":9.8330078125,"y":11.09521484375},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4295753729","nick":"729","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":8.462890625,"y":7.048095703125},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4296015873","nick":"873","isWarrior":false,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":4.5,"y":4.5},"armor":{"health":2000},"weapon":{"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4296278017","nick":"017","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":7.122802734375,"y":8.207275390625},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4298113025","nick":"025","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":8.138916015625,"y":8.933642578125},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4297850881","nick":"881","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":9.548583984375,"y":9.226806640625},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4296540161","nick":"161","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":8.788818359375,"y":8.056884765625},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4295491585","nick":"585","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":11.31884765625,"y":9.682861328125},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4295229441","nick":"441","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":9.1826171875,"y":10.091064453125},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"warriors":["4296278017","4298113025"],"enemy":"4295229441"}
+{"warriors":["4295753729","4296540161"],"enemy":"4297850881"}
+{"unitTags":["4295753729"],"abilityId":3674,"targetUnitTag":"4297850881","queueCommand":false}
+{"unitTags":["4296278017"],"abilityId":3674,"targetUnitTag":"4295229441","queueCommand":false}
+{"unitTags":["4298113025"],"abilityId":3674,"targetUnitTag":"4295229441","queueCommand":false}
+{"unitTags":["4296540161"],"abilityId":3674,"targetUnitTag":"4297850881","queueCommand":false}
+
+# Case 2
+{"tag":"4294967297","nick":"297","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":10.368896484375,"y":8.127685546875},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4295753729","nick":"729","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":8.5751953125,"y":7.163818359375},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":5.541259765625},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4296015873","nick":"873","isWarrior":false,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":4.5,"y":4.5},"armor":{"health":2000},"weapon":{"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4296278017","nick":"017","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":7.698974609375,"y":10.1015625},"armor":{"health":134},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4295229441"},"isSelected":false}
+{"tag":"4296540161","nick":"161","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":9.496826171875,"y":8.57470703125},"armor":{"health":88},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":8.758056640625},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4297850881","nick":"881","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":8.88720703125,"y":9.32763671875},"armor":{"health":60},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4298113025","nick":"025","isWarrior":true,"isEnemy":false,"body":{"radius":0.5,"speed":0.140625,"x":8.533203125,"y":8.453857421875},"armor":{"health":74},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":7.211181640625},"order":{"abilityId":23,"progress":0,"targetUnitTag":"4297850881"},"isSelected":false}
+{"tag":"4295491585","nick":"585","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":10.380615234375,"y":9.066162109375},"armor":{"health":150},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"tag":"4295229441","nick":"441","isWarrior":false,"isEnemy":true,"body":{"radius":0.5,"speed":0.140625,"x":7.890380859375,"y":9.1826171875},"armor":{"health":134},"weapon":{"damage":8,"range":0.1,"isMelee":true,"isRanged":false,"speed":9.6,"attacks":2,"cooldown":0},"order":{"abilityId":0},"isSelected":false}
+{"warriors":["4295753729"],"enemy":"4295229441"}
+{"warriors":["4296278017","4296540161","4298113025"],"enemy":"4297850881"}
+{"unitTags":["4295753729"],"abilityId":3674,"targetUnitTag":"4295229441","queueCommand":false}
+{"unitTags":["4296278017"],"abilityId":3674,"targetUnitTag":"4297850881","queueCommand":false}
+{"unitTags":["4296540161"],"abilityId":3674,"targetUnitTag":"4297850881","queueCommand":false}
+{"unitTags":["4298113025"],"abilityId":3674,"targetUnitTag":"4297850881","queueCommand":false}

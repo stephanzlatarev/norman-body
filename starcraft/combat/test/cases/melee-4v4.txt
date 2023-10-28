@@ -1,5 +1,21 @@
 
-# Two bands of warriors should attack two enemies
+# Focus attack on approach
+{"tag":"A", "isWarrior": true, "body": {"x": 1, "y": 13, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"B", "isWarrior": true, "body": {"x": 3, "y": 11, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"C", "isWarrior": true, "body": {"x": 5, "y": 11, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"D", "isWarrior": true, "body": {"x": 7, "y": 13, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"W", "isEnemy": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"X", "isEnemy": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"Y", "isEnemy": true, "body": {"x": 5, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"Z", "isEnemy": true, "body": {"x": 7, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"warriors": ["A", "B"], "enemy": "X"}
+{"warriors": ["C", "D"], "enemy": "Y"}
+{"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+{"unitTags": ["B"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
+{"unitTags": ["C"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}
+{"unitTags": ["D"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}
+
+# Focus attack in weak formation
 {"tag":"A", "isWarrior": true, "body": {"x": 1, "y": 7, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
 {"tag":"B", "isWarrior": true, "body": {"x": 3, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
 {"tag":"C", "isWarrior": true, "body": {"x": 5, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
