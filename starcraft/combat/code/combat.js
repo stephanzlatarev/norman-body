@@ -24,23 +24,25 @@ export default class Combat {
     // Body skill "maneuver"
     const commands = maneuver(battle);
 
-    if (LOG) log(units, fights, commands);
+    if (LOG) log(units, battle, commands);
 
     return commands;
   }
 
 }
 
-function log(units, fights, commands) {
+let step = 1;
+
+function log(units, battle, commands) {
   const logs = [];
 
   for (const unit of units.values()) {
     const u = {...unit};
-    delete u.path;
+    delete u.combat;
     logs.push(JSON.stringify(u));
   }
 
-  for (const fight of fights) {
+  for (const fight of battle.fights) {
     logs.push(fight.toJsonString());
   }
 
@@ -48,5 +50,5 @@ function log(units, fights, commands) {
     logs.push(JSON.stringify(command));
   }
 
-  console.log("\r\n#\r\n" + logs.join("\r\n"));
+  console.log("\r\n\r\n# Step " + (step++) + "\r\n" + logs.join("\r\n"));
 }
