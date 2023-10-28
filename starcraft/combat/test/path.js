@@ -50,6 +50,16 @@ describe("Path", function() {
     assertWithin(getSteps(enemy, unit(12, 10, 1.6)), 4, 8);
   });
 
+  it("Warrior which bumped into obstacle can reach enemy", function() {
+    assertWithin(getSteps(enemy, unit(9.7, 9.7, 1)), 2, 3);
+    assertWithin(getSteps(enemy, unit(9.7, 10, 1)), 2, 3);
+    assertWithin(getSteps(enemy, unit(9.7, 10.3, 1)), 2, 3);
+
+    assertWithin(getSteps(enemy, unit(10.3, 9.7, 1)), 4, 8);
+    assertWithin(getSteps(enemy, unit(10.3, 10, 1)), 4, 8);
+    assertWithin(getSteps(enemy, unit(10.3, 10.3, 1)), 4, 8);
+  });
+
   it("Warrior reaches enemy from one path only", function() {
     const wall = [
       unit(13, 9), unit(14, 9), unit(15, 9),
@@ -118,10 +128,10 @@ function assertEqual(actual, expected) {
 }
 
 function assertWithin(actual, min, max, text) {
-  if (!(actual >= min)) {
+  if (!(actual >= min - 0.0001)) {
     assert.equal(actual, min, text);
   }
-  if (!(actual <= max)) {
+  if (!(actual <= max + 0.0001)) {
     assert.equal(actual, max, text);
   }
 }

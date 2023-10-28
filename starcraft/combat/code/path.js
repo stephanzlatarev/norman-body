@@ -15,9 +15,14 @@ export default class Path {
     this.boundaries = findBoundaries(this.warrior, units);
     this.grid = createGrid(this.boundaries);
 
+    const warriorCell = {
+      col: getCol(this.boundaries, this.warrior.body),
+      row: getRow(this.boundaries, this.warrior.body)
+    };
+
     for (const unit of units.values()) {
       if (unit !== this.warrior) {
-        markUnit(this.grid, this.boundaries, unit);
+        markObstacle(this.grid, this.boundaries, unit, warriorCell);
       }
     }
 
@@ -140,7 +145,7 @@ function createGrid(boundaries) {
     const row = [];
 
     for (let j = 0; j < boundaries.width; j += GRID) {
-      row.push({ steps: undefined, units: [] });
+      row.push(undefined);
     }
 
     grid.push(row);
@@ -171,14 +176,27 @@ function getSteps(grid, col, row) {
   }
 }
 
-function markUnit(grid, boundaries, unit) {
-  const col = getCol(boundaries, unit.body);
-  const row = getRow(boundaries, unit.body);
-  const spread = Math.ceil(unit.body.radius / GRID) + Math.floor(boundaries.gap / GRID);
+function markObstacle(grid, boundaries, obstacle, warriorCell) {
+  const obstacleCell = {
+    col: getCol(boundaries, obstacle.body),
+    row: getRow(boundaries, obstacle.body),
+  }
+  const spread = Math.ceil(obstacle.body.radius / GRID) + Math.floor(boundaries.gap / GRID);
 
-  for (const cell of getSpreadCells(grid, col, row, spread)) {
+  for (const cell of getSpreadCells(grid, obstacleCell.col, obstacleCell.row, spread)) {
+    if ((cell.row === warriorCell.row) && (cell.col === warriorCell.col)) continue;
+    if (isBlocking(obstacleCell, warriorCell, cell)) continue;
+
     grid[cell.row][cell.col] = Infinity;
   }
+}
+
+// Return true if from the point of view of point a, point c is behind b
+function isBlocking(a, b, c) {
+  return (
+    (((a.col <= b.col) && (b.col <= c.col)) || ((a.col >= b.col) && (b.col >= c.col)) || (a.col === b.col)) &&
+    (((a.row <= b.row) && (b.row <= c.row)) || ((a.row >= b.row) && (b.row >= c.row)) || (a.row === b.row))
+  );
 }
 
 function findPath(grid, startCol, startRow) {
