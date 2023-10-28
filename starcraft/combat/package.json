@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "demo": "nodemon ./demo/server.js",
     "test": "mocha"
   },
   "devDependencies": {
-    "mocha": "^10.2.0"
+    "express": "^4.18.2",
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.18"
   }
 }
