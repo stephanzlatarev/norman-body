@@ -1,8 +1,8 @@
 
-export default function(fights) {
+export default function(battle) {
   const commands = [];
 
-  for (const fight of fights) {
+  for (const fight of battle.fights) {
     const enemy = fight.enemy;
 
     for (const warrior of fight.warriors) {

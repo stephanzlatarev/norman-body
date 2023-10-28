@@ -10,7 +10,7 @@ describe("Engage", function() {
       for (const step of testcase.steps) {
         if (!step.fights) continue;
 
-        const fights = engage(step.units);
+        const fights = getFights(step.units);
 
         fights.sort((a, b) => a.enemy.tag.localeCompare(b.enemy.tag));
 
@@ -25,3 +25,17 @@ describe("Engage", function() {
   }
 
 });
+
+function getFights(units) {
+  let battle = engage(units);
+
+  for (let i = 0; i < 50; i++) {
+    const update = engage(units);
+
+    if (update === battle) break;
+
+    battle = update;
+  }
+
+  return battle.fights;
+}

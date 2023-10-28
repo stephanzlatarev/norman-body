@@ -26,29 +26,50 @@ export default class Path {
     return this;
   }
 
-  getStepsToReach(enemy) {
-    if (distance(this.warrior.body, enemy.body) < this.warrior.body.radius + this.warrior.weapon.range + enemy.body.radius) return 0;
+  contact(enemy, projections) {
+    if (distance(this.warrior.body, enemy.body) < this.warrior.body.radius + this.warrior.weapon.range + enemy.body.radius) {
+      return { steps: 0, x: this.warrior.body.x, y: this.warrior.body.y };
+    }
 
-    const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID) + 1;
     const col = getCol(this.boundaries, enemy.body);
     const row = getRow(this.boundaries, enemy.body);
     const target = getSteps(this.grid, col, row);
 
     if (target >= 0) {
       let bestSteps = target;
+      let bestCol;
+      let bestRow;
 
+      const blocked = new Set();
+      if (projections) {
+        for (const projection of projections) {
+          const col = getCol(this.boundaries, projection);
+          const row = getRow(this.boundaries, projection);
+          const spread = Math.ceil((this.warrior.body.radius + projection.radius) / GRID) + 1;
+
+          for (const cell of getSpreadCells(this.grid, col, row, spread)) {
+            blocked.add(cell.id);
+          }
+        }
+      }
+
+      const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID) + 1;
       for (const cell of getSpreadCells(this.grid, col, row, spread)) {
+        if (blocked.has(cell.id)) continue;
+
         const steps = getSteps(this.grid, cell.col, cell.row);
 
         if (steps < bestSteps) {
           bestSteps = steps;
+          bestCol = cell.col;
+          bestRow = cell.row;
         }
       }
 
-      return (bestSteps > 0) ? bestSteps + GRID : 0;
+      return { steps: (bestSteps > 0) ? bestSteps + GRID : 0, x: getX(this.boundaries, bestCol), y: getY(this.boundaries, bestRow) };
     }
 
-    return Infinity;
+    return { steps: Infinity };
   }
 
   show(title) {
@@ -132,8 +153,16 @@ function getCol(boundaries, pos) {
   return Math.floor((pos.x - boundaries.left) / GRID);
 }
 
+function getX(boundaries, col) {
+  return boundaries.left + col * GRID;
+}
+
 function getRow(boundaries, pos) {
   return Math.floor((pos.y - boundaries.top) / GRID);
+}
+
+function getY(boundaries, row) {
+  return boundaries.top + row * GRID;
 }
 
 function getSteps(grid, col, row) {
@@ -206,7 +235,7 @@ function getSpreadCells(grid, col, row, spread) {
       // Check if cell is within spread
       if ((dc*dc + dr*dr) > spread*spread) continue;
 
-      cells.push({ row: row + dr, col: col + dc });
+      cells.push({ row: row + dr, col: col + dc, id: (row + dr) + ":" + (col + dc) });
     }
   }
 

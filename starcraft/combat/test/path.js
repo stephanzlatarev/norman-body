@@ -5,12 +5,17 @@ describe("Path", function() {
 
   const warrior = unit(10, 10);
   const enemy = unit(14, 10);
+
   const getSteps = function(enemy, ...obstacles) {
-    return new Path(warrior).calculate(map(warrior, enemy, ...obstacles)).getStepsToReach(enemy);
+    return new Path(warrior).calculate(map(warrior, enemy, ...obstacles)).contact(enemy).steps;
+  }
+
+  const getContactWithProjections = function(enemy, ...projections) {
+    return new Path(warrior).calculate(map(warrior, enemy)).contact(enemy, projections);
   }
 
   it("Warrior cannot reach positions outside the grid", function() {
-    assertEqual(new Path(unit(1, 1)).calculate([unit(0, 0), unit(4, 4)]).getStepsToReach(unit(8, 1)), Infinity);
+    assertEqual(new Path(unit(1, 1)).calculate([unit(0, 0), unit(4, 4)]).contact(unit(8, 1)).steps, Infinity);
   });
 
   it("Warrior reaches its position in zero steps", function() {
@@ -67,6 +72,29 @@ describe("Path", function() {
     assertWithin(getSteps(unit(11, 11), unit(10, 11), unit(11, 10)), 4, 5);
   });
 
+  it("Projections outside of grid don't change the steps to reach the enemy", function() {
+    const contact = getContactWithProjections(enemy, unit(20, 20).body);
+    assertEqual(contact.steps, 3);
+    assertWithin(contact.x, 12, 13);
+    assertEqual(contact.y, 10);
+  });
+
+  it("Projections away from the warrior's path don't change the steps to reach the enemy", function() {
+    assertEqual(getContactWithProjections(enemy, unit(15, 10).body).steps, 3);
+  });
+
+  it("Projections away from the point of contact don't change the steps to reach the enemy", function() {
+    assertEqual(getContactWithProjections(enemy, unit(11, 10).body).steps, 3);
+  });
+
+  it("Projections at the point of contact change the steps to reach the enemy", function() {
+    const contact = getContactWithProjections(enemy, unit(13, 10).body);
+
+    assertWithin(contact.steps, 4, 8, "Number of steps:");
+    assertWithin(contact.x, 13.5, 14, "X coordinate of contact point:");
+    assertWithin(contact.y, 9, 11, "Y coordinate of contact point:");
+  });
+
 });
 
 function unit(x, y, r) {
@@ -89,11 +117,11 @@ function assertEqual(actual, expected) {
   }
 }
 
-function assertWithin(actual, min, max) {
-  if (actual < min) {
-    assert.equal(actual, min);
+function assertWithin(actual, min, max, text) {
+  if (!(actual >= min)) {
+    assert.equal(actual, min, text);
   }
-  if (actual > max) {
-    assert.equal(actual, max);
+  if (!(actual <= max)) {
+    assert.equal(actual, max, text);
   }
 }

@@ -1,6 +1,7 @@
 import engage from "./engage.js";
 import maneuver from "./maneuver.js";
 
+const LIMIT_ITERATIONS = 20;
 const LOG = false;
 
 export default class Combat {
@@ -8,10 +9,20 @@ export default class Combat {
   run(units) {
 
     // Body skill "engage"
-    const fights = engage(units);
+    let battle = engage(units);
+
+    for (let i = 0; i < LIMIT_ITERATIONS; i++) {
+      const update = engage(units);
+
+      if (update !== battle) {
+        battle = update;
+      } else {
+        break;
+      }
+    }
 
     // Body skill "maneuver"
-    const commands = maneuver(fights);
+    const commands = maneuver(battle);
 
     if (LOG) log(units, fights, commands);
 
