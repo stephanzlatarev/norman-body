@@ -213,8 +213,24 @@ function showUnit() {
 
     list.push("<ul>");
     list.push(li("Tag:", unit.tag));
-    list.push(li("Place:", unit.body.x.toFixed(1), ":", unit.body.x.toFixed(1), "radius:", unit.body.radius.toFixed(1)));
-    list.push(li("Weapon cooldown:", unit.weapon.cooldown.toFixed(2)));
+
+    list.push("<li>Body:<ul>");
+    list.push(li("Location:", unit.body.x.toFixed(1), ":", unit.body.x.toFixed(1)));
+    list.push(li("Radius:", unit.body.radius.toFixed(1)));
+    list.push("</ul></li>");
+
+    list.push("<li>Armor:<ul>");
+    list.push(li("Health:", unit.armor.health.toFixed(2)));
+    list.push("</ul></li>");
+
+    list.push("<li>Weapon:<ul>");
+    list.push(li("Cooldown:", unit.weapon.cooldown.toFixed(2)));
+    list.push(li("Range:", unit.weapon.range.toFixed(1)));
+    list.push(li("Damage:", unit.weapon.damage));
+    list.push(li("Attacks:", unit.weapon.attacks));
+    list.push(li("Damage per step:", (unit.weapon.damage / unit.weapon.speed).toFixed(2)));
+    list.push("</ul></li>");
+
     list.push("</ul>");
   }
 
@@ -359,8 +375,6 @@ function showAttackDetails(attack) {
   details.push("<ul>");
   details.push(li("Start:", Math.round(attack.start)));
   details.push(li("End:", Math.round(attack.end)));
-  details.push(li("Place:", attack.x.toFixed(1), ":", attack.y.toFixed(1), "r:", attack.radius.toFixed(1)));
-  details.push(li("Damage per step:", attack.damagePerStep.toFixed(2)));
   details.push(li("Steps:", Math.round(attack.steps)));
   details.push(li("Loss:", attack.loss.toFixed(4)));
   details.push("</ul>");
