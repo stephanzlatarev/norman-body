@@ -3,8 +3,6 @@ import engage from "../code/engage.js";
 const WIDTH = 600;
 const HEIGHT = 600;
 
-const LIMIT_ITERATIONS = 20;
-
 let ID = 1;
 const selectors = new Set();
 const toggles = new Map();
@@ -402,6 +400,7 @@ function calculateBoundaries(step) {
   const width = (boundaries.right - boundaries.left);
   const height = (boundaries.top - boundaries.bottom);
   const size = Math.max(width, height);
+
   if (width !== height) {
     if (width < size) {
       const gap = (size - width) / 2;
@@ -434,6 +433,7 @@ function calculateBattles(step) {
   // Set attacks
   for (const warrior of battle.warriors) {
     const fight = battle.fights.find(fight => fight.hasEngagedWarrior(warrior));
+
     if (fight) {
       const attack = fight.attacks.find(attack => (attack.warrior === warrior));
       warrior.enemy = attack.enemy;
