@@ -7,13 +7,15 @@ export default class Combat {
 
   run(units) {
 
+    if (LOG) logBefore(units);
+
     // Body skill "engage"
     const battle = engage(units);
 
     // Body skill "maneuver"
     const commands = maneuver(battle);
 
-    if (LOG) log(units, battle, commands);
+    if (LOG) logAfter(battle, commands);
 
     return commands;
   }
@@ -22,14 +24,23 @@ export default class Combat {
 
 let step = 1;
 
-function log(units, battle, commands) {
+function logBefore(units) {
   const logs = [];
 
   for (const unit of units.values()) {
-    const u = {...unit};
-    delete u.combat;
-    logs.push(JSON.stringify(u));
+    logs.push(JSON.stringify({
+      ...unit,
+      combat: {
+        targetUnitTag: unit.combat ? unit.combat.targetUnitTag : undefined,
+      }
+    }));
   }
+
+  console.log("\r\n\r\n# Step " + (step++) + "\r\n" + logs.join("\r\n"));
+}
+
+function logAfter(battle, commands) {
+  const logs = [];
 
   for (const fight of battle.fights) {
     logs.push(fight.toJsonString());
@@ -39,5 +50,5 @@ function log(units, battle, commands) {
     logs.push(JSON.stringify(command));
   }
 
-  console.log("\r\n\r\n# Step " + (step++) + "\r\n" + logs.join("\r\n"));
+  console.log("\r\n\r\n" + logs.join("\r\n"));
 }
