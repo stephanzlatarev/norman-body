@@ -31,7 +31,7 @@ function show(step) {
   }
 
   showCases();
-  showField();
+  showField(selectedStep);
   showBattles();
   showUnit();
 }
@@ -153,16 +153,20 @@ function showCases() {
   $("#cases").empty().append(list.join(" "));
 }
 
-function showField() {
+function showField(step) {
   const svg = [];
 
   svg.push(`<svg width="${WIDTH}" height="${HEIGHT}">`);
 
   for (const unit of selectedStep.units.values()) {
+    const id = step.id + "-unit-" + unit.nick;
+
     const cx = getX(unit.body.x);
     const cy = getY(unit.body.y);
     const rx = getWidth(unit.body.radius);
     const ry = getHeight(unit.body.radius);
+    const wx = unit.weapon.range ? getWidth(unit.body.radius + unit.weapon.range) : 0;
+    const wy = unit.weapon.range ? getHeight(unit.body.radius + unit.weapon.range) : 0;
 
     const hf = unit.isWarrior ? "rgb(100, 200, 100)" : "rgb(200, 100, 100)";
     const hx = rx * unit.armor.health / selectedStep.boundaries.health;
@@ -170,13 +174,15 @@ function showField() {
 
     const uf = (unit === selectedUnit) ? "black" : hf;
 
-    svg.push(`<g id="unit${unit.nick}" style="cursor: pointer">`);
-    svg.push(`<ellipse cx=${cx} cy=${cy} rx=${hx} ry=${hy} style="fill:${hf}" />`);
+    svg.push(`<g id="${id}" style="cursor: pointer">`);
+    svg.push(`<ellipse cx=${cx} cy=${cy} rx=${wx} ry=${wy} style="fill:none;stroke-width:5;stroke:${uf};stroke-dasharray:1,1" />`);
     svg.push(`<ellipse cx=${cx} cy=${cy} rx=${rx} ry=${ry} style="fill:none;stroke-width:5;stroke:${uf}" />`);
+    svg.push(`<ellipse cx=${cx} cy=${cy} rx=${hx} ry=${hy} style="fill:${hf}" />`);
+
     svg.push(`<text x=${cx - rx*unit.nick.length/3} y=${cy + ry/3} style="font-size:${ry}">${unit.nick}</text>`);
     svg.push(`</g>`);
 
-    onClick("#unit" + unit.nick, () => selectUnit(unit));
+    onClick("#" + id, () => selectUnit(unit));
   }
 
   for (const unit of selectedStep.units.values()) {
@@ -198,7 +204,7 @@ function showField() {
 
 function selectUnit(unit) {
   selectedUnit = unit;
-  showField();
+  showField(selectedStep);
   showBattles();
   showUnit();
 }
@@ -223,13 +229,15 @@ function showUnit() {
     list.push(li("Health:", unit.armor.health.toFixed(2)));
     list.push("</ul></li>");
 
-    list.push("<li>Weapon:<ul>");
-    list.push(li("Cooldown:", unit.weapon.cooldown.toFixed(2)));
-    list.push(li("Range:", unit.weapon.range.toFixed(1)));
-    list.push(li("Damage:", unit.weapon.damage));
-    list.push(li("Attacks:", unit.weapon.attacks));
-    list.push(li("Damage per step:", (unit.weapon.damage / unit.weapon.speed).toFixed(2)));
-    list.push("</ul></li>");
+    if (unit.weapon.damage) {
+      list.push("<li>Weapon:<ul>");
+      list.push(li("Cooldown:", unit.weapon.cooldown.toFixed(2)));
+      list.push(li("Range:", unit.weapon.range.toFixed(1)));
+      list.push(li("Damage:", unit.weapon.damage));
+      list.push(li("Attacks:", unit.weapon.attacks));
+      list.push(li("Damage per step:", (unit.weapon.damage / unit.weapon.speed).toFixed(2)));
+      list.push("</ul></li>");
+    }
 
     list.push("</ul>");
   }
@@ -377,6 +385,7 @@ function showAttackDetails(attack) {
   details.push(li("End:", Math.round(attack.end)));
   details.push(li("Steps:", Math.round(attack.steps)));
   details.push(li("Loss:", attack.loss.toFixed(4)));
+  details.push(li("Waste:", (attack.waste * 100).toFixed(2) + "%"));
   details.push("</ul>");
 
   return details.join(" ");
