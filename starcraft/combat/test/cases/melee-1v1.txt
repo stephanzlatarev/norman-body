@@ -1,17 +1,17 @@
 
 # Warrior should attack enemy unit
-{"tag":"A", "isWarrior": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
-{"tag":"X", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"A", "isWarrior": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"X", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 0}}
 {"warriors": ["A"], "enemy": "X"}
 {"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "X", "queueCommand": false}
 
 # Attack command should not be repeated
-{"tag":"A", "isWarrior": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 3674, "targetUnitTag": "X"}}
-{"tag":"X", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"A", "isWarrior": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 3674, "targetUnitTag": "X"}}
+{"tag":"X", "isEnemy": true, "body": {"x": 5, "y": 5, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 0}}
 {"warriors": ["A"], "enemy": "X"}
 
 # Warrior should attack new enemy unit
-{"tag":"A", "isWarrior": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 3674, "targetUnitTag": "X"}}
-{"tag":"Y", "isEnemy": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 1, "cooldown": 0}, "order": {"abilityId": 0}}
+{"tag":"A", "isWarrior": true, "body": {"x": 3, "y": 3, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 3674, "targetUnitTag": "X"}}
+{"tag":"Y", "isEnemy": true, "body": {"x": 1, "y": 1, "radius": 1, "speed": 1}, "armor": {"health": 10}, "weapon": {"isMelee": true, "damage": 1, "speed": 1, "attacks": 1, "range": 0.1, "cooldown": 0}, "order": {"abilityId": 0}}
 {"warriors": ["A"], "enemy": "Y"}
 {"unitTags": ["A"], "abilityId": 3674, "targetUnitTag": "Y", "queueCommand": false}

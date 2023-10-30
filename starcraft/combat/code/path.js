@@ -2,8 +2,6 @@
 const GRID = 0.2;
 const DIAGONAL = Math.sqrt(GRID * GRID * 2);
 
-// TODO: Consider the radius of warrior and units when finding path. The warrior is not able to move between units that are close together.
-// TODO: Consider the weapon range of warrior when calculating the steps to reach an enemy.
 export default class Path {
 
   constructor(warrior) {
@@ -45,8 +43,8 @@ export default class Path {
       let bestCol;
       let bestRow;
 
-      const blocked = new Set();
-      if (projections) {
+      const blocked = (this.warrior.weapon.range < 1) ? new Set() : null;
+      if (projections && blocked) {
         for (const projection of projections) {
           const col = getCol(this.boundaries, projection);
           const row = getRow(this.boundaries, projection);
@@ -58,9 +56,9 @@ export default class Path {
         }
       }
 
-      const spread = Math.ceil((this.warrior.body.radius + enemy.body.radius) / GRID) + 1;
+      const spread = Math.ceil((this.warrior.body.radius + this.warrior.weapon.range + enemy.body.radius) / GRID) + 1;
       for (const cell of getSpreadCells(this.grid, col, row, spread)) {
-        if (blocked.has(cell.id)) continue;
+        if (blocked && blocked.has(cell.id)) continue;
 
         const steps = getSteps(this.grid, cell.col, cell.row);
 
