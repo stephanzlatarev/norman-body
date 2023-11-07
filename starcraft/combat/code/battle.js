@@ -1,6 +1,4 @@
-
-const WALK_PENALTY = 1;
-const COLLISION_TOLERANCE = 0.2;
+import Fight from "./fight.js";
 
 export default class Battle {
 
@@ -10,70 +8,122 @@ export default class Battle {
     this.fights = [];
 
     if (warriors && enemies) {
+      for (const warrior of warriors) {
+        warrior.weapon.dps = warrior.weapon.damage / warrior.weapon.speed;
+      }
+
       for (const enemy of enemies) {
-        const engagedWarriors = [];
+//        const engagedWarriors = [];
+//
+//        for (const warrior of warriors) {
+//          if (warrior.combat.targetUnitTag === enemy.tag) {
+//            engagedWarriors.push(warrior);
+//          }
+//        }
+//
+//        if (engagedWarriors.length) {
+//          this.fights.push(new Fight(engagedWarriors, enemy));
+//        }
 
-        for (const warrior of warriors) {
-          if (warrior.combat.targetUnitTag === enemy.tag) {
-            engagedWarriors.push(warrior);
-          }
-        }
-
-        if (engagedWarriors.length) {
-          this.fights.push(new Fight(engagedWarriors, enemy));
-        }
+        enemy.weapon.dps = enemy.weapon.damage / enemy.weapon.speed;
       }
 
       this.calculate();
     }
   }
 
+  addFight(warriors, enemy) {
+    this.fights.push(new Fight(warriors, enemy));
+    this.calculate();
+
+    return this;
+  }
+
   derive(warrior, enemy) {
-    for (const fight of this.fights) if (fight.hasEngagedWarrior(warrior) && fight.hasEngagedEnemy(enemy)) return this;
-
-    const battle = new Battle();
-    const fights = [];
-
-    let isEnemyEngaged = false;
-
-    for (const fight of this.fights) {
-      if (fight.hasEngagedEnemy(enemy)) {
-        fights.push(new Fight([...fight.warriors, warrior], enemy));
-        isEnemyEngaged = true;
-      } else if (fight.hasEngagedWarrior(warrior)) {
-        if (fight.warriors.length > 1) {
-          const warriors = [...fight.warriors];
-          warriors.splice(warriors.indexOf(warrior), 1);
-          fights.push(new Fight(warriors, fight.enemy));
-        }
-      } else {
-        fights.push(fight);
-      }
-    }
-
-    if (!isEnemyEngaged) {
-      fights.push(new Fight([warrior], enemy));
-    }
-
-    battle.warriors = this.warriors;
-    battle.enemies = this.enemies;
-    battle.change = { warrior: warrior, enemy: enemy };
-    battle.fights = fights;
-    battle.calculate();
-
-    return battle;
+    return this;
+//    for (const fight of this.fights) if (fight.hasEngagedWarrior(warrior) && fight.hasEngagedEnemy(enemy)) return this;
+//
+//    const battle = new Battle();
+//    const fights = [];
+//
+//    let isEnemyEngaged = false;
+//
+//    for (const fight of this.fights) {
+//      if (fight.hasEngagedEnemy(enemy)) {
+//        fights.push(new Fight([...fight.warriors, warrior], enemy));
+//        isEnemyEngaged = true;
+//      } else if (fight.hasEngagedWarrior(warrior)) {
+//        if (fight.warriors.length > 1) {
+//          const warriors = [...fight.warriors];
+//          warriors.splice(warriors.indexOf(warrior), 1);
+//          fights.push(new Fight(warriors, fight.enemy));
+//        }
+//      } else {
+//        fights.push(fight);
+//      }
+//    }
+//
+//    if (!isEnemyEngaged) {
+//      fights.push(new Fight([warrior], enemy));
+//    }
+//
+//    battle.warriors = this.warriors;
+//    battle.enemies = this.enemies;
+//    battle.change = { warrior: warrior, enemy: enemy };
+//    battle.fights = fights;
+//    battle.calculate();
+//
+//    return battle;
   }
 
   calculate() {
-    let gain = 0;
-    let loss = 0;
+    const unengagedEnemies = this.enemies.filter(enemy => !this.fights.find(fight => (fight.enemy === enemy)));
 
+    let score = 0;
+    let step = 0;
+    let dps = 0;
+    let healthOfUnengagedEnemies = calculateTotalHealth(unengagedEnemies);
+
+    this.fights.sort((a, b) => (a.stepsToKill - b.stepsToKill));
+
+    // Calculate the score for the steps between different fights end
     for (const fight of this.fights) {
-      gain += fight.gain;
-      loss += fight.loss;
+      if (fight.stepsToKill === Infinity) continue;
+
+      const steps = fight.stepsToKill - step;
+
+      if (steps * dps <= healthOfUnengagedEnemies) {
+        for (const one of this.fights) {
+          if (one.stepsToKill >= fight.stepsToKill) {
+            score += steps * one.enemy.weapon.dps;
+          }
+        }
+        for (const enemy of unengagedEnemies) {
+          score += steps * enemy.weapon.dps;
+        }
+
+        step = fight.stepsToKill;
+        healthOfUnengagedEnemies -= steps * dps;
+        dps += calculateTotalDamagePerStep(fight.warriors);
+      } else {
+        for (const one of this.fights) {
+          if (one.stepsToKill > step) {
+            unengagedEnemies.push(one.enemy);
+            healthOfUnengagedEnemies += Math.max((one.enemy.armor.health - calculateDamageUntilStep(one.attacks, step)), 0);
+          }
+        }
+
+        break;
+      }
     }
 
-    this.efficiency = gain / loss;
+    // Calculate the score for all unengaged enemies after all fights have ended
+    const remainingSteps = healthOfUnengagedEnemies / calculateTotalDamagePerStep(this.warriors);
+    for (const enemy of unengagedEnemies) {
+      score += remainingSteps * enemy.weapon.dps;
+    }
+
+    this.score = score;
   }
 
   isWarriorEngagingEnemy(warrior, enemy) {
@@ -84,153 +134,60 @@ export default class Battle {
     return !!this.fights.find(fight => fight.isWarriorContributing(warrior));
   }
 
-}
+  show() {
+    const line = [];
 
-class Fight {
+    line.push(this.score.toFixed(2));
 
-  constructor(warriors, enemy) {
-    this.warriors = warriors;
-    this.enemy = enemy;
+    for (const fight of this.fights) {
+      line.push("|");
 
-    this.attacks = getAttacks(warriors, enemy);
-    this.stepsToKill = calculateStepsToKill(enemy, this.attacks);
-
-    let activeAttacksCount = 0;
-    for (const attack of this.attacks) {
-      if (attack.start < this.stepsToKill) {
-        attack.isActive = true;
-        activeAttacksCount++;
-      } else {
-        attack.isActive = false;
+      for (const attack of fight.attacks) {
+        line.push(attack.warrior.nick);
+        line.push("(" + Math.round(attack.start) + ")");
       }
+
+      line.push("->");
+      line.push(fight.enemy.nick);
     }
 
-    const enemyDamagePerStep = enemy.weapon.damage / enemy.weapon.speed;
-    this.gain = enemyDamagePerStep / this.stepsToKill;
-
-    let loss = 0;
-    for (const attack of this.attacks) {
-      if (attack.isActive) {
-        loss += attack.calculateLoss(activeAttacksCount, this.stepsToKill);
-      }
-    }
-    this.loss = loss;
-
-    this.efficiency = this.gain / this.loss;
+    console.log(line.join(" "));
   }
-
-  hasEngagedEnemy(enemy) {
-    return (this.enemy === enemy);
-  }
-
-  hasEngagedWarrior(warrior) {
-    return (this.warriors.indexOf(warrior) >= 0);
-  }
-
-  isWarriorEngagingEnemy(warrior, enemy) {
-    return !!this.attacks.find(attack => (attack.warrior === warrior) && (attack.enemy === enemy));
-  }
-
-  isWarriorContributing(warrior) {
-    return !!this.attacks.find(attack => attack.isActive && (attack.warrior === warrior));
-  }
-
-  toJsonString() {
-    const warriors = this.warriors.map(w => w.tag);
-    warriors.sort();
-    
-    return JSON.stringify({ warriors: warriors, enemy: this.enemy.tag });
-  }
-
 }
 
-class Attack {
-
-  constructor(warrior, enemy) {
-    this.warrior = warrior;
-    this.enemy = enemy;
-
-    this.damagePerStep = warrior.weapon.damage / warrior.weapon.speed;
-    this.radius = warrior.body.radius;
-
-    this.calculate([]);
-  }
-
-  calculate(attacks) {
-    const contact = this.warrior.combat.path.contact(this.enemy, attacks);
-    const stepsToReachEnemy = (contact.steps / this.warrior.body.speed) * WALK_PENALTY;
-    const stepsToLoadWeapon = this.warrior.weapon.cooldown;
-
-    this.x = contact.x;
-    this.y = contact.y;
-    this.steps = Math.max(stepsToReachEnemy, stepsToLoadWeapon);
-    this.start = this.steps;
-
-    this.end = 0;
-    this.loss = 0;
-  }
-
-  calculateLoss(activeAttacksCount, stepsToKill) {
-    const enemyDamagePerStep = this.enemy.weapon.damage / this.enemy.weapon.speed / activeAttacksCount;
-
-    this.end = this.warrior.armor.health / enemyDamagePerStep;
-    this.loss = (this.damagePerStep / this.end) * (1 + this.start / stepsToKill);
-
-    return this.loss;
-  }
-
-  accepts(attack) {
-    const distanceX = this.x - attack.x;
-    const distanceY = this.y - attack.y;
-    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-    return (distance - this.radius - attack.radius > COLLISION_TOLERANCE);
-  }
-
-  static orderByStart(a, b) {
-    return a.start - b.start;
-  }
-
-}
-
-function getAttacks(warriors, enemy) {
-  const attacks = [];
-  const confirmed = [];
-
-  for (const warrior of warriors) {
-    attacks.push(new Attack(warrior, enemy));
-  }
-
-  attacks.sort(Attack.orderByStart);
-
-  for (const attack of attacks) {
-    if (!attack.accepts(confirmed)) {
-      attack.calculate(confirmed);
-    }
-
-    confirmed.push(attack);
-  }
-
-  attacks.sort(Attack.orderByStart);
-
-  return attacks;
-}
-
-function calculateStepsToKill(unit, attacks) {
-  let health = unit.armor.health;
+function calculateDamageUntilStep(attacks, end) {
+  let damage = 0;
   let dps = 0;
   let step = 0;
 
   for (const attack of attacks) {
-    const steps = attack.start - step;
-    const damage = steps * dps;
+    const steps = Math.min(attack.start - step, end - step);
 
-    if (damage >= health) break;
-
-    health -= damage;
-    dps += attack.damagePerStep;
+    damage += steps * dps;
     step += steps;
+
+    if (step >= end) break;
   }
 
-  return step + health / dps;
+  return damage;
+}
+
+function calculateTotalDamagePerStep(units) {
+  let total = 0;
+
+  for (const unit of units) {
+    total += unit.weapon.dps;
+  }
+
+  return total;
+}
+
+function calculateTotalHealth(units) {
+  let total = 0;
+
+  for (const unit of units) {
+    total += unit.armor.health;
+  }
+
+  return total;
 }

@@ -254,9 +254,9 @@ function showBattles() {
     list.push("<li>");
     list.push(`<span id="${battle.id}" style="cursor: pointer">`, battle.summary, "</span>");
 
-    if (battle.isSelected) {
-      list.push(...showAlternatives(battle));
-    }
+//    if (battle.isSelected) {
+//      list.push(...showAlternatives(battle));
+//    }
 
     list.push("</li>");
 
@@ -310,7 +310,7 @@ function showBattleDetails(battle, focusWarrior, warriors, focusEnemy, enemies, 
   if (!battle.isWarriorContributing(focusWarrior)) style.push("text-decoration: line-through");
   if (baseBattle.isWarriorEngagingEnemy(focusWarrior, focusEnemy)) style.push("font-weight: bold");
   details.push(`<div id="${detailsId}" style="${style.join(';')}">`);
-  details.push(battle.efficiency.toFixed(4));
+  details.push(battle.score.toFixed(4));
   details.push("</div>");
 
   onClick("#" + detailsId, function() { toggle(detailsId); showBattles(); });
@@ -327,7 +327,7 @@ function showBattleDetails(battle, focusWarrior, warriors, focusEnemy, enemies, 
     if (fight) {
       const header = [];
       header.push(showHeader(fight.enemy.nick, (fight.enemy === selectedUnit)));
-      header.push(showFightDetails(fight));
+      header.push(showFightDetails(fight, battle.end));
       row.push(header.join(" "));
     }
   }
@@ -364,14 +364,13 @@ function showBattleDetails(battle, focusWarrior, warriors, focusEnemy, enemies, 
   return details.join(" ");
 }
 
-function showFightDetails(fight) {
+function showFightDetails(fight, battleEnd) {
   const details = [];
 
   details.push("<ul>");
   details.push(li("Steps to kill:", Math.round(fight.stepsToKill)));
-  details.push(li("Gain:", fight.gain.toFixed(4)));
-  details.push(li("Loss:", fight.loss.toFixed(4)));
-  details.push(li("Efficiency:", fight.efficiency.toFixed(4)));
+  details.push(li("Score:", fight.score.toFixed(4)));
+  details.push(li("Reduce:", ((battleEnd * fight.enemy.weapon.damage / fight.enemy.weapon.speed) - fight.score).toFixed(4)));
   details.push("</ul>");
 
   return details.join(" ");
@@ -381,11 +380,7 @@ function showAttackDetails(attack) {
   const details = [];
 
   details.push("<ul>");
-  details.push(li("Start:", Math.round(attack.start)));
-  details.push(li("End:", Math.round(attack.end)));
-  details.push(li("Steps:", Math.round(attack.steps)));
-  details.push(li("Loss:", attack.loss.toFixed(4)));
-  details.push(li("Waste:", (attack.waste * 100).toFixed(2) + "%"));
+  details.push(li("Start:", Math.round(attack.start), "(" + Math.round(attack.stepsToReachEnemy) + "|" + Math.round(attack.stepsToLoadWeapon) + ")"));
   details.push("</ul>");
 
   return details.join(" ");
@@ -449,6 +444,7 @@ function calculateBattles(step) {
     battle.id = id();
     battle.summary = battle.change ? battle.change.warrior.nick + " → " + battle.change.enemy.nick : "Start";
     battles.push(battle);
+    battle.show();
   });
 
   battle.isSelected = true;

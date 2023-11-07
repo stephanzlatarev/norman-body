@@ -1,25 +1,37 @@
 import Battle from "./battle.js";
+import Fight from "./fight.js";
 import Path from "./path.js";
 
-const LIMIT_ITERATIONS = 20;
-
 export default function(units, callback) {
-  let battle = startBattle(units);
-  let iteration = 0;
-  let update;
+  const { warriors, enemies } = sync(units);
+  if (!warriors.length || !enemies.length) return null;
+
+  const potential = enemies.map(enemy => new Battle(warriors, enemies).addFight(warriors, enemy));
+
+  potential.sort((a, b) => (a.score - b.score));
+
+  const targets = potential.map(battle => battle.fights[0].enemy);
+
+  let battle = potential[0];
 
   if (callback) callback(battle);
 
-  while ((iteration++ < LIMIT_ITERATIONS) && (update = updateBattle(battle))) {
-    battle = update;
+  for (let i = 1; i < targets.length; i++) {
+    const alternative = createBattle(warriors, enemies, targets.slice(0, i + 1));
 
-    if (callback) callback(battle);
+    if (callback) callback(alternative);
+
+    if (alternative.score < battle.score) {
+      battle = alternative;
+    } else if (alternative.score > battle.score) {
+      break;
+    }
   }
 
   return battle;
 }
 
-function startBattle(units) {
+function sync(units) {
   const warriors = [];
   const enemies = [];
 
@@ -27,56 +39,89 @@ function startBattle(units) {
     if (unit.isEnemy) {
       enemies.push(unit);
     } else if (unit.isWarrior) {
-      sync(unit, units);
+      if (!unit.combat) {
+        unit.combat = {};
+      }
+      unit.combat.path = new Path(unit).calculate(units);
+
       warriors.push(unit);
     }
   }
 
-  return new Battle(warriors, enemies);
+  return { warriors: warriors, enemies: enemies };
 }
 
-function sync(unit, units) {
-  if (!unit.combat) {
-    unit.combat = {
-      targetUnitTag: null,
-    };
+function createBattle(warriors, enemies, targets) {
+  const battle = new Battle(warriors, enemies);
+  const fights = [];
+  const engagements = new Map();
+  const engagedWarriors = new Set();
+
+  for (const target of targets) {
+    fights.push(new Fight(warriors, target));
+    engagements.set(target, []);
   }
 
-  unit.combat.path = new Path(unit).calculate(units);
+  let warrior;
+  while (warrior = selectUnengagedWarrior(fights, engagedWarriors)) {
+    const target = findClosestTarget(warrior, fights);
+
+    if (!target) break;
+
+    engagements.get(target).push(warrior);
+    engagedWarriors.add(warrior);
+    removeWarriorFromOtherFights(fights, warrior, target);
+  }
+
+  for (const [target, warriors] of engagements) {
+    if (warriors.length) {
+      battle.addFight(warriors, target);
+    }
+  }
+
+  return battle;
 }
 
-function updateBattle(battle) {
-  let bestBattle = battle;
-  let efficiency = -Infinity;
-
-  for (const warrior of battle.warriors) {
-    let bestWarriorAlternative;
-    let bestWarriorEnemy;
-    let bestWarriorEfficiency = -Infinity;
-
-    for (const enemy of battle.enemies) {
-      const alternative = battle.derive(warrior, enemy);
-
-      if (alternative.isWarriorContributing(warrior) && (alternative.efficiency > bestWarriorEfficiency)) {
-        bestWarriorAlternative = alternative;
-        bestWarriorEnemy = enemy;
-        bestWarriorEfficiency = alternative.efficiency;
+function selectUnengagedWarrior(fights, engagedWarriors) {
+  for (const fight of fights) {
+    for (const attack of fight.attacks) {
+      if (!engagedWarriors.has(attack.warrior)) {
+        return attack.warrior;
       }
     }
+  }
+}
 
-    if (bestWarriorAlternative && (bestWarriorEfficiency > efficiency) && !battle.isWarriorEngagingEnemy(warrior, bestWarriorEnemy)) {
-      bestBattle = bestWarriorAlternative;
-      efficiency = bestWarriorEfficiency;
+function findClosestTarget(warrior, fights) {
+  let bestTarget;
+  let bestStart = Infinity;
+
+  for (const fight of fights) {
+    const attack = fight.attacks.find(attack => (attack.warrior === warrior));
+
+    if (attack && (attack.start < bestStart)) {
+      bestStart = attack.start;
+      bestTarget = fight.enemy;
     }
   }
 
-  if ((bestBattle !== battle) && bestBattle.change) {
-    const warrior = bestBattle.change.warrior;
-    const enemy = bestBattle.change.enemy;
+  return bestTarget;
+}
 
-    // Engage enemy with this warrior
-    warrior.combat.targetUnitTag = enemy.tag;
+function removeWarriorFromOtherFights(fights, warrior, target) {
+  for (let i = fights.length - 1; i >= 0; i--) {
+    const fight = fights[i];
+    if (fights[i].enemy === target) continue;
 
-    return bestBattle;
+    const index = fight.warriors.indexOf(warrior);
+    if (index >= 0) {
+      if (fight.warriors.length > 1) {
+        const warriors = [...fight.warriors];
+        warriors.splice(index, 1);
+        fights[i] = new Fight(warriors, fight.enemy);
+      } else {
+        fights.splice(i, 1);
+      }
+    }
   }
 }

@@ -46,12 +46,14 @@ export default class Path {
       const blocked = (this.warrior.weapon.range < 1) ? new Set() : null;
       if (projections && blocked) {
         for (const projection of projections) {
-          const col = getCol(this.boundaries, projection);
-          const row = getRow(this.boundaries, projection);
-          const spread = Math.ceil((this.warrior.body.radius + projection.radius) / GRID) + 1;
+          if ((projection.x + projection.radius >= this.boundaries.left) && (projection.y + projection.radius >= this.boundaries.top)) {
+            const col = getCol(this.boundaries, projection);
+            const row = getRow(this.boundaries, projection);
+            const spread = Math.ceil((this.warrior.body.radius + projection.radius) / GRID) + 1;
 
-          for (const cell of getSpreadCells(this.grid, col, row, spread)) {
-            blocked.add(cell.id);
+            for (const cell of getSpreadCells(this.grid, col, row, spread)) {
+              blocked.add(cell.id);
+            }
           }
         }
       }

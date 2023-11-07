@@ -6,11 +6,14 @@ const LOG = false;
 export default class Combat {
 
   run(units) {
+    if (!units.size) return [];
 
     if (LOG) logBefore(units);
 
     // Body skill "engage"
     const battle = engage(units);
+
+    if (!battle) return [];
 
     // Body skill "maneuver"
     const commands = maneuver(battle);
