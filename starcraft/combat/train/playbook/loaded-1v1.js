@@ -9,7 +9,7 @@ export default function() {
   const health = Math.random() * 199 + 1;
 
   input[SIZE + cell] = health;
-  output[cell] = 1;
+  output[cell] = health;
 
   return {
     input: input,
