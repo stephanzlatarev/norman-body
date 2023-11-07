@@ -1,19 +1,30 @@
 
-The combat body skill controls units that are not controlled by mind skills, i.e. there's no link between the unit and a skill in memory.
+The combat body skill controls warrior units in missions.
 
-This skill works on two levels:
+### Missions
 
-* Fight or rally - Available warriors are engaged in fights over one enemy unit or rallies to gathering points on the map. Mind skills can influence how warriors are engaged in fights or rallies by creating fight nodes or rally nodes in memory and linking warrior units to them.
+Mission types:
+* Assault - Warriors are directed to the location of assault missions to attack the enemies near it. There may be multiple assault missions, and warriors engage in their nearest one.
+* Future - Locations with enemy units, which our warriors cannot engage become future missions. They will become fight missions when we build stronger army.
+* Scout - Detectors, light warriors, or workers are directed to scout target locations to detect enemy presence.
+* Diversion - Locations with enemy economy structures or other places the enemy monitors may be selected as targets for diversion missions. Fast and stealth warriors are directed to them to distract the enemy or deal strategic damage.
 
-* Warrior - Warriors engaged in fights are maneuvered to attack the enemy unit or to move to better positions. Warriors in rally are commanded to move to the corresponding rally points. Mind skills can influence how warriors maneuver in fights or rallies by linking the warrior nodes in memory to the controlling skill and issuing attack or move commands in memory.
+The combat body skill will maintain a single mission at all times, except if there are missions created by mind skills.
 
-### Enagement in fights
+If there are one or more visible enemy units, it will be an **assault** mission targeted at the enemy unit which is closest to own base. Any previous assault missions will become **future** missions.
 
-A fight is created for each enemy unit.
-Each available warrior is initially engaged in the fight it will inflict the most damage to the enemy.
-The engagements of warriors to fights are then optimized by considering individual transfers of one warrior to different fight.
-A transfer is considered good when the overall damage inflicted by our warriors to the enemy units is much more than the damage taken comparing the warrior engaged in one fight versus engaging in the other fight.
+Otherwise, if there are *future* missions, the one which is closest to own base transitions to **assault** mission. In the future, selected future missions may become *scout* missions before one becomes an *assault* mission.
 
-### Maneuver in fights
+Otherwise, it will be a **scout** mission at a random location on the map.
 
-Available warriors engaged in fights are commanded to move to positions that minimize the threat of being damaged by enemy units and that maximize the opportunity to damage enemy units.
+### Engaging warriors
+
+The combat body skill engages warriors in missions by:
+* Selecting special units like detectors for scout missions and cloaked units for diversion missions, if any.
+* Splitting warriors to engage in their closest assault mission.
+
+### Commanding warriors
+
+The combat body skill commands warriors by issue move and attack commands:
+* When a warrior is outside range of mission target, a move command is issued to the warrior to approach the target of the mission.
+* When a warrior is within range, a move or attack command is issued to perform the mission.

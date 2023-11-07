@@ -1,57 +1,45 @@
+import command from "./command.js";
 import engage from "./engage.js";
-import maneuver from "./maneuver.js";
+import plan from "./plan.js";
 
 const LOG = false;
 
 export default class Combat {
 
-  run(units) {
+  run(time, units) {
     if (!units.size) return [];
 
-    if (LOG) logBefore(units);
+    const missions = plan(units);
+    const commands = [];
 
-    // Body skill "engage"
-    const battle = engage(units);
+    if (missions.length) {
+      engage(units, missions);
+      command(missions, commands);
+    }
 
-    if (!battle) return [];
-
-    // Body skill "maneuver"
-    const commands = maneuver(battle);
-
-    if (LOG) logAfter(battle, commands);
+    if (LOG) log(time, units, missions, commands);
 
     return commands;
   }
 
 }
 
-let step = 1;
-
-function logBefore(units) {
+function log(time, units, missions, commands) {
   const logs = [];
+
+  logs.push("# Time " + time);
 
   for (const unit of units.values()) {
-    logs.push(JSON.stringify({
-      ...unit,
-      combat: {
-        targetUnitTag: unit.combat ? unit.combat.targetUnitTag : undefined,
-      }
-    }));
+    logs.push(JSON.stringify(unit));
   }
 
-  console.log("\r\n\r\n# Step " + (step++) + "\r\n" + logs.join("\r\n"));
-}
-
-function logAfter(battle, commands) {
-  const logs = [];
-
-  for (const fight of battle.fights) {
-    logs.push(fight.toJsonString());
+  for (const mission of missions) {
+    logs.push(JSON.stringify(mission.describe()));
   }
 
   for (const command of commands) {
     logs.push(JSON.stringify(command));
   }
 
-  console.log("\r\n\r\n" + logs.join("\r\n"));
+  console.log(logs.join("\n"));
 }
