@@ -1,18 +1,17 @@
 
 const RADIUS = 10;
-const SIDE = RADIUS * 2 + 1;
+const SIDE = 21;
 const SIZE = SIDE * SIDE;
 
 export default function() {
-  const x = Math.floor(Math.random() * SIDE);
-  const y = Math.floor(Math.random() * SIDE);
-  const cell = SIZE + offset(x, y);
+  const x = (Math.random() - 0.5) * RADIUS * 2;
+  const y = (Math.random() - 0.5) * RADIUS * 2;
   const health = Math.random() * 199 + 1;
 
   const input = array(SIZE + SIZE);
-  input[cell] = health;
+  input[cell(x, y)] = health;
 
-  const output = [x - RADIUS - 1, y - RADIUS - 1];
+  const output = [x, y];
 
   return {
     input: input,
@@ -30,6 +29,9 @@ function array(size) {
   return array;
 }
 
-function offset(x, y) {
-  return SIDE * y + x;
+function cell(dx, dy) {
+  const col = Math.round(RADIUS + dx);
+  const row = Math.round(RADIUS + dy);
+
+  return SIDE * row + col;
 }
