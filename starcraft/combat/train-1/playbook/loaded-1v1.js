@@ -4,8 +4,8 @@ const SIDE = 21;
 const SIZE = SIDE * SIDE;
 
 export default function() {
-  const x = (Math.random() - 0.5) * RADIUS * 2;
-  const y = (Math.random() - 0.5) * RADIUS * 2;
+  const x = Math.round((Math.random() - 0.5) * RADIUS * 2);
+  const y = Math.round((Math.random() - 0.5) * RADIUS * 2);
   const health = Math.random() * 199 + 1;
 
   const input = array(SIZE + SIZE);
@@ -30,8 +30,5 @@ function array(size) {
 }
 
 function cell(dx, dy) {
-  const col = Math.round(RADIUS + dx);
-  const row = Math.round(RADIUS + dy);
-
-  return SIDE * row + col;
+  return Math.round(SIDE * (RADIUS + dy) + (RADIUS + dx));
 }
