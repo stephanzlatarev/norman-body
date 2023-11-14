@@ -68,7 +68,7 @@ function selectInstanceCount(range, instances) {
   if (range >= 0) {
     return range;
   } else if (Array.isArray(range)) {
-    return Math.floor(selectNumberInRange(range));
+    return Math.floor(range[0] + Math.random() * (range[1] - range[0] + 1));
   } else if (range instanceof Function) {
     return range(instances);
   }
@@ -77,5 +77,5 @@ function selectInstanceCount(range, instances) {
 }
 
 function selectNumberInRange(range) {
-  return range[0] + Math.random() * (range[1] - range[0] + 1);
+  return range[0] + Math.random() * (range[1] - range[0]);
 }
