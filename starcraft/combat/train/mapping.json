@@ -3,14 +3,14 @@
 
   "when": {
     "infos": [
-      { "node": "Targets", "length": 441 },
-      { "node": "Enemies", "length": 441 }
+      { "node": "Enemies health", "length": 441 },
+      { "node": "Support health", "length": 441 }
     ]
   },
 
   "then": {
     "infos": [
-      { "node": "Target", "length": 441 }
+      { "node": "Target", "length": 2 }
     ]
   }
 }
