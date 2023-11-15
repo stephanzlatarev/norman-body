@@ -77,5 +77,11 @@ function selectInstanceCount(range, instances) {
 }
 
 function selectNumberInRange(range) {
-  return range[0] + Math.random() * (range[1] - range[0]);
+  let selection = Math.random() * (range[1] - range[0]);
+
+  if (range[2]) {
+    selection = Math.round(selection / range[2]) * range[2];
+  }
+
+  return range[0] + selection;
 }
