@@ -18,6 +18,6 @@ const UNIT = {
 export default function() {
   return sample(882, 2, [
     new Feature("Target", 1, TARGET, [withinContactDistance], [applyEnemyHealth, applyTarget]),
-    new Feature("Far enemy", [0, 6], UNIT, [noCollisions, outsideContactDistance], [applyEnemyHealth]),
+    new Feature("Enemy", [0, 6], UNIT, [noCollisions, outsideContactDistance], [applyEnemyHealth]),
   ]);
 }
