@@ -48,7 +48,7 @@ export function noCollisions(feature, others) {
 }
 
 function isAtSamePosition(a, b) {
-  return (a.x !== b.x) && (a.y !== b.y);
+  return (a.x === b.x) && (a.y === b.y);
 }
 
 function calculateDistanceToWarrior(a) {

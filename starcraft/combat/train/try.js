@@ -28,17 +28,24 @@ function show(one) {
 }
 
 let count = 0;
+let failed = 0;
 let showat = 1000;
 let one;
 
 while ((count < 10000) || !one) {
   one = sample();
-  count++;
 
-  if (one && (count >= showat)) {
-    show(one);
-    showat += 1000;
+  if (one) {
+    count++;
+
+    if (count >= showat) {
+      show(one);
+      showat += 1000;
+    }
+  } else {
+    failed++;
   }
 }
 
 console.log("Total samples count:", count);
+console.log("Failed samples count:", failed);

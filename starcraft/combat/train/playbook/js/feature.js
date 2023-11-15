@@ -13,7 +13,7 @@ export default class Feature {
     const instancesNeeded = selectInstanceCount(this.instances, instances);
     let count = 0;
 
-    for (let attempt = 0; (count < instancesNeeded) && (attempt < attemptsLimit); attempt++) {
+    for (let attempt = 0; (count < instancesNeeded) && (attempt < (attemptsLimit * instancesNeeded)); attempt++) {
       const instance = this.generateInstance(instances);
 
       if (instance) {
