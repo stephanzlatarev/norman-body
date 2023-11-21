@@ -1,10 +1,10 @@
 {
-  "label": "combat-1",
+  "label": "combat",
 
   "when": {
     "infos": [
-      { "node": "Targets", "length": 441 },
-      { "node": "Enemies", "length": 441 }
+      { "node": "Warriors", "length": 12 },
+      { "node": "Enemies", "length": 12 }
     ]
   },
 
