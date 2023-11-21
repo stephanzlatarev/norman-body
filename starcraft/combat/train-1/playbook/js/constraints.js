@@ -43,6 +43,18 @@ export function outsideTargetFarDistance(feature, features) {
   return calculateDistance(feature.properties, target.properties) >= 8;
 }
 
+export function outsideEnemyFarDistance(feature, features) {
+  const enemies = features.filter(feature => (feature.label === "Enemy"));
+
+  for (const enemy of enemies) {
+    if (calculateDistance(feature.properties, enemy.properties) < 8) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function calculateDistanceToWarrior(a) {
   return Math.sqrt(a.x * a.x + a.y * a.y);
 }
