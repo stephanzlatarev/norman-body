@@ -4,11 +4,11 @@ export function withinContactDistance(feature) {
 }
 
 export function withinCloseDistance(feature) {
-  return calculateDistanceToWarrior(feature.properties) < 3.5;
+  return calculateDistanceToWarrior(feature.properties) < 4;
 }
 
 export function withinMediumDistance(feature) {
-  return calculateDistanceToWarrior(feature.properties) < 5;
+  return calculateDistanceToWarrior(feature.properties) < 6;
 }
 
 export function withinFarDistance(feature) {
@@ -20,11 +20,11 @@ export function outsideContactDistance(feature) {
 }
 
 export function outsideCloseDistance(feature) {
-  return calculateDistanceToWarrior(feature.properties) >= 3.5;
+  return calculateDistanceToWarrior(feature.properties) >= 4;
 }
 
 export function outsideMediumDistance(feature) {
-  return calculateDistanceToWarrior(feature.properties) >= 5;
+  return calculateDistanceToWarrior(feature.properties) >= 6;
 }
 
 export function outsideFarDistance(feature) {
@@ -35,6 +35,12 @@ export function withinTargetContactDistance(feature, features) {
   const target = features.find(feature => (feature.label === "Target"));
 
   return calculateDistance(feature.properties, target.properties) < 2;
+}
+
+export function outsideTargetFarDistance(feature, features) {
+  const target = features.find(feature => (feature.label === "Target"));
+
+  return calculateDistance(feature.properties, target.properties) >= 8;
 }
 
 function calculateDistanceToWarrior(a) {
