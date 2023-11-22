@@ -1,42 +1,39 @@
 
 export default class Feature {
 
-  constructor(label, instances, properties, constraints, applications) {
+  constructor(label, instances, properties, constraints) {
     this.label = label;
     this.instances = instances;
     this.properties = properties;
     this.constraints = constraints;
-    this.applications = applications;
   }
 
-  addInstancesTo(instances, attemptsLimit) {
-    const instancesNeeded = selectInstanceCount(this.instances, instances);
-    let count = 0;
+  generateCount(context) {
+    const range = this.instances;
 
-    for (let attempt = 0; (count < instancesNeeded) && (attempt < (attemptsLimit * instancesNeeded)); attempt++) {
-      const instance = this.generateInstance(count, instances);
-
-      if (instance) {
-        instances.push(instance);
-        count++;
-      }
+    if (range >= 0) {
+      return range;
+    } else if (Array.isArray(range)) {
+      return Math.floor(range[0] + Math.random() * (range[1] - range[0] + 1));
+    } else if (range instanceof Function) {
+      return range(context);
     }
 
-    return (count === instancesNeeded);
+    return 0;
   }
 
-  generateInstance(index, instances) {
+  generateInstance(context) {
     const properties = {};
 
     for (const key in this.properties) {
-      properties[key] = selectNumberInRange(this.properties[key]);
+      properties[key] = selectNumberInRange(this.properties[key], context);
     }
 
-    const instance = new FeatureInstance(index, this.label, properties, this.applications);
+    const instance = new Instance(this.label, properties);
 
     if (Array.isArray(this.constraints)) {
       for (const constraint of this.constraints) {
-        if (!constraint(instance, instances)) {
+        if (!constraint(instance, context)) {
           return;
         }
       }
@@ -47,42 +44,39 @@ export default class Feature {
 
 }
 
-class FeatureInstance {
+class Instance {
 
-  constructor(index, label, properties, applications) {
-    this.index = index;
+  constructor(label, properties) {
     this.label = label;
     this.properties = properties;
-    this.applications = applications;
   }
 
-  applyTo(input, output) {
-    if (this.applications) {
-      for (const applyTo of this.applications) {
-        applyTo(this.index, this.properties, input, output);
-      }
+  toString() {
+    const line = [this.label];
+
+    for (const key in this.properties) {
+      line.push(key + "=" + this.properties[key].toFixed(2));
     }
-  }
-}
 
-function selectInstanceCount(range, instances) {
-  if (range >= 0) {
-    return range;
-  } else if (Array.isArray(range)) {
-    return Math.floor(range[0] + Math.random() * (range[1] - range[0] + 1));
-  } else if (range instanceof Function) {
-    return range(instances);
+    return line.join(" ");
   }
 
-  return 0;
 }
 
 function selectNumberInRange(range) {
-  let selection = Math.random() * (range[1] - range[0]);
+  if (range > 0) {
+    return range;
+  } else if (Array.isArray(range)) {
+    let selection = Math.random() * (range[1] - range[0]);
 
-  if (range[2]) {
-    selection = Math.round(selection / range[2]) * range[2];
+    if (range[2]) {
+      selection = Math.round(selection / range[2]) * range[2];
+    }
+
+    return range[0] + selection;
+  } else if (range instanceof Function) {
+    return range(context);
   }
 
-  return range[0] + selection;
+  return 0;
 }

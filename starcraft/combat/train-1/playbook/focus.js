@@ -1,22 +1,33 @@
+import Generator from "./js/generator.js";
 import Feature from "./js/feature.js";
-import sample from "./js/sample.js";
-import { applyEnemy, applySupport, applyTarget } from "./js/applications.js";
+import format from "./js/formatter.js";
 import { withinCloseDistance, withinMediumDistance, outsideContactDistance, outsideCloseDistance, withinTargetContactDistance } from "./js/constraints.js";
 
 const UNIT = {
   x: [-10, 10],
   y: [-10, 10],
-  h: [1, 200],
+  radius: [0.1, 1],
+  speed: [0.1, 0.2],
+  health: [1, 500],
+  damage: [0.1, 10],
+  range: [0.1, 10],
+  cooldown: [0, 20]
 };
+const WARRIOR = { ...UNIT, x: 0, y: 0 };
 
 export default function() {
-  return sample(24, 2, [
-    new Feature("Target", 1, UNIT, [outsideCloseDistance, withinMediumDistance], [applyTarget, applyTargetAsEnemy]),
-    new Feature("Enemy", 1, UNIT, [outsideContactDistance, withinCloseDistance], [applyEnemy]),
-    new Feature("Support", 1, UNIT, [withinTargetContactDistance], [applySupport]),
-  ]);
-}
+  const generator = new Generator()
+    .add(new Feature("Warrior", 1, WARRIOR, []))
+    .add(new Feature("Target", 1, UNIT, [outsideCloseDistance, withinMediumDistance]))
+    .add(new Feature("Enemy", 1, UNIT, [outsideContactDistance, withinCloseDistance]))
+    .add(new Feature("Flank", 1, UNIT, [withinTargetContactDistance]));
 
-function applyTargetAsEnemy(index, properties, input) {
-  return applyEnemy(index + 1, properties, input);
+  const mapping = {
+    Warrior: ["Warrior"],
+    Warriors: ["Flank", "Support"],
+    Enemies: ["Enemy", "Target"],
+    Target: ["Target"],
+  };
+
+  return format(generator.generate(), mapping);
 }

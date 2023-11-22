@@ -1,36 +1,29 @@
 import sample from "./playbook/attack.js";
 
 function show(one) {
-  console.log("Warriors:");
+  const SPLIT = 10;
+  const input = [""];
 
-  for (let i = 0; i < 4; i++) {
-    const x = one.input[i * 3 + 12];
-    const y = one.input[i * 3 + 13];
-    const h = one.input[i * 3 + 14];
+  for (const i of one.input) {
+    if (((input.length % SPLIT) === 0) && (input.length > 1)) {
+      input.push("\n");
+    }
 
-    console.log(x.toFixed(2), ":", y.toFixed(2), "health:", Math.round(h));
+    input.push(i.toFixed(2));
   }
 
-  console.log("Enemies:");
-
-  for (let i = 0; i < 4; i++) {
-    const x = one.input[i * 3];
-    const y = one.input[i * 3 + 1];
-    const h = one.input[i * 3 + 2];
-
-    console.log(x.toFixed(2), ":", y.toFixed(2), "health:", Math.round(h));
-  }
-
-  console.log("Target:");
-
-  console.log(one.output[0].toFixed(2), ":", one.output[1].toFixed(2));
-
+  console.log("Shape:", one.input.length, ":", one.output.length);
+  console.log("Input:");
+  console.log(input.join("\t"));
+  console.log("Output:");
+  console.log("\t", one.output[0].toFixed(2), "\t", one.output[1].toFixed(2));
   console.log();
 }
 
+const limit = 10000;
+let showat = limit / 3;
 let count = 0;
 let failed = 0;
-let showat = 1000;
 let one;
 
 while ((count < 10000) || !one) {
@@ -41,7 +34,7 @@ while ((count < 10000) || !one) {
 
     if (count >= showat) {
       show(one);
-      showat += 1000;
+      showat += (limit / 3);
     }
   } else {
     failed++;
