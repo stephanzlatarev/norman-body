@@ -12,15 +12,12 @@ export default function(sample, mapping) {
   const output = [target.properties.x, target.properties.y];
 
   // Add this warrior
-  input.push(0, 0);
-  input.push(warrior.properties.health);
+  input.push(0, 0, warrior.properties.health);
 
   // Add support warriors
   for (const one of warriors) {
     if (one) {
-      input.push(one.properties.x);
-      input.push(one.properties.y);
-      input.push(one.properties.health);
+      input.push(one.properties.x, one.properties.y, one.properties.health);
     } else {
       input.push(0, 0, 0);
     }
@@ -29,11 +26,9 @@ export default function(sample, mapping) {
   // Add enemies
   for (const one of enemies) {
     if (one) {
-      input.push(one.properties.x);
-      input.push(one.properties.y);
-      input.push(one.properties.health);
+      input.push(one.properties.x, one.properties.y, one.properties.health);
     } else {
-      input.push(0, 0);
+      input.push(0, 0, 0);
     }
   }
 
