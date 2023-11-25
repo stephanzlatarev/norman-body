@@ -1,54 +1,58 @@
 
 export function withinContactDistance(feature) {
-  return outsideWarriorSpace(feature) && (calculateDistanceToWarrior(feature.properties) < 2);
+  return calculateDistanceToWarrior(feature.properties) < 2;
 }
 
 export function withinCloseDistance(feature) {
-  return outsideWarriorSpace(feature) && (calculateDistanceToWarrior(feature.properties) < 3.5);
+  return calculateDistanceToWarrior(feature.properties) < 4;
 }
 
 export function withinMediumDistance(feature) {
-  return outsideCloseDistance(feature) && (calculateDistanceToWarrior(feature.properties) < 5);
+  return calculateDistanceToWarrior(feature.properties) < 6;
 }
 
 export function withinFarDistance(feature) {
-  return outsideMediumDistance(feature) && (calculateDistanceToWarrior(feature.properties) < 8);
-}
-
-export function outsideWarriorSpace(feature) {
-  return (feature.properties.x !== 0) || (feature.properties.y !== 0);
+  return calculateDistanceToWarrior(feature.properties) < 8;
 }
 
 export function outsideContactDistance(feature) {
-  return (calculateDistanceToWarrior(feature.properties) >= 2);
+  return calculateDistanceToWarrior(feature.properties) >= 2;
 }
 
 export function outsideCloseDistance(feature) {
-  return (calculateDistanceToWarrior(feature.properties) >= 3.5);
+  return calculateDistanceToWarrior(feature.properties) >= 4;
 }
 
 export function outsideMediumDistance(feature) {
-  return (calculateDistanceToWarrior(feature.properties) >= 5);
+  return calculateDistanceToWarrior(feature.properties) >= 6;
 }
 
 export function outsideFarDistance(feature) {
-  return (calculateDistanceToWarrior(feature.properties) >= 8);
+  return calculateDistanceToWarrior(feature.properties) >= 8;
 }
 
-export function noCollisions(feature, others) {
-  if (!outsideWarriorSpace(feature)) return false;
+export function withinTargetContactDistance(feature, features) {
+  const target = features.find(feature => (feature.label === "Target"));
 
-  for (const one of others) {
-    if (isAtSamePosition(feature.properties, one.properties)) {
+  return calculateDistance(feature.properties, target.properties) < 2;
+}
+
+export function outsideTargetFarDistance(feature, features) {
+  const target = features.find(feature => (feature.label === "Target"));
+
+  return calculateDistance(feature.properties, target.properties) >= 8;
+}
+
+export function outsideEnemyFarDistance(feature, features) {
+  const enemies = features.filter(feature => (feature.label === "Enemy"));
+
+  for (const enemy of enemies) {
+    if (calculateDistance(feature.properties, enemy.properties) < 8) {
       return false;
     }
   }
 
   return true;
-}
-
-function isAtSamePosition(a, b) {
-  return (a.x === b.x) && (a.y === b.y);
 }
 
 function calculateDistanceToWarrior(a) {

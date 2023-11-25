@@ -3,8 +3,8 @@
 
   "when": {
     "infos": [
-      { "node": "Enemies health", "length": 441 },
-      { "node": "Support health", "length": 441 }
+      { "node": "Warriors", "length": 12 },
+      { "node": "Enemies", "length": 12 }
     ]
   },
 

@@ -1,35 +1,29 @@
-import sample from "./playbook/focus-fire.js";
+import sample from "./playbook/attack.js";
 
 function show(one) {
-  console.log("===");
+  const SPLIT = 4;
+  const input = [""];
 
-  for (let r = 0, i = 0; r <= 20; r++) {
-    const line = [];
-
-    for (let c = 0; c <= 20; c++, i++) {
-      line.push(((r === 10) && (c === 10)) ? "+" : one.input[i]);
+  for (const i of one.input) {
+    if (((input.length % SPLIT) === 0) && (input.length > 1)) {
+      input.push("\n");
     }
-    console.log(line.join(" "));
+
+    input.push(i.toFixed(2));
   }
 
-  console.log("---");
-
-  for (let r = 0, i = 0; r <= 20; r++) {
-    const line = [];
-
-    for (let c = 0; c <= 20; c++, i++) {
-      line.push(((r === 10) && (c === 10)) ? "+" : one.input[441 + i]);
-    }
-    console.log(line.join(" "));
-  }
-
-  console.log("---");
-  console.log(one.output);
+  console.log("Shape:", one.input.length, ":", one.output.length);
+  console.log("Input:");
+  console.log(input.join("\t"));
+  console.log("Output:");
+  console.log("\t", one.output[0].toFixed(2), "\t", one.output[1].toFixed(2));
+  console.log();
 }
 
+const limit = 10000;
+let showat = limit / 3;
 let count = 0;
 let failed = 0;
-let showat = 1000;
 let one;
 
 while ((count < 10000) || !one) {
@@ -40,7 +34,7 @@ while ((count < 10000) || !one) {
 
     if (count >= showat) {
       show(one);
-      showat += 1000;
+      showat += (limit / 3);
     }
   } else {
     failed++;
