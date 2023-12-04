@@ -1,5 +1,6 @@
 {
   "label": "combat",
+  "fidelity": 0.5,
 
   "when": {
     "infos": [
