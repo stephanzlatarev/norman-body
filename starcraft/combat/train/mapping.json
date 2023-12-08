@@ -4,8 +4,9 @@
 
   "when": {
     "infos": [
-      { "node": "Warriors", "length": 12 },
-      { "node": "Enemies", "length": 12 }
+      { "node": "Warrior", "length": 6 },
+      { "node": "Warriors", "length": 80 },
+      { "node": "Enemies", "length": 70 }
     ]
   },
 
