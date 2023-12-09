@@ -1,7 +1,7 @@
 import Generator from "./js/generator.js";
 import Feature from "./js/feature.js";
 import format from "./js/formatter.js";
-import { withinCloseDistance, withinMediumDistance, outsideContactDistance, outsideCloseDistance, withinTargetContactDistance } from "./js/constraints.js";
+import { withinFarDistance, withinMediumDistance, outsideFarDistance, outsideMediumDistance, outsideTargetFarDistance, outsideEnemyFarDistance } from "./js/constraints.js";
 
 const UNIT = {
   x: [-10, 10],
@@ -18,13 +18,13 @@ const WARRIOR = { ...UNIT, x: 0, y: 0 };
 export default function() {
   const generator = new Generator()
     .add(new Feature("Warrior", 1, WARRIOR, []))
-    .add(new Feature("Target", 1, UNIT, [outsideCloseDistance, withinMediumDistance]))
-    .add(new Feature("Enemy", 1, UNIT, [outsideContactDistance, withinCloseDistance]))
-    .add(new Feature("Flank", 1, UNIT, [withinTargetContactDistance]));
+    .add(new Feature("Target", 1, UNIT, [outsideMediumDistance, withinFarDistance]))
+    .add(new Feature("Enemy", [0, 5], UNIT, [outsideFarDistance]))
+    .add(new Feature("Support", [0, 5], UNIT, [withinMediumDistance, outsideTargetFarDistance, outsideEnemyFarDistance]));
 
   const mapping = {
     Warrior: ["Warrior"],
-    Warriors: ["Flank", "Support"],
+    Warriors: ["Support"],
     Enemies: ["Enemy", "Target"],
     Target: ["Target"],
   };
