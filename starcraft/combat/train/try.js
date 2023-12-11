@@ -1,4 +1,4 @@
-import sample from "./playbook/attack.js";
+import sample from "./playbook/approach.js";
 
 function show(one) {
   const SPLIT = 4;
@@ -26,6 +26,8 @@ let count = 0;
 let failed = 0;
 let one;
 
+const startTime = Date.now();
+
 while ((count < 10000) || !one) {
   one = sample();
 
@@ -41,5 +43,9 @@ while ((count < 10000) || !one) {
   }
 }
 
+const endTime = Date.now();
+
 console.log("Total samples count:", count);
 console.log("Failed samples count:", failed);
+console.log("Seconds:", ((endTime - startTime) / 1000).toFixed(2));
+console.log("Samples per second:", (count * 1000 / (endTime - startTime)).toFixed(2));
